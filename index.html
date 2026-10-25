@@ -17,7 +17,7 @@
 <body x-data :class="{ 'has-tabs': $store.app.tabs }">
   <header class="top">
     <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</a>
-    <p class="countdown" x-cloak x-show="['people', 'kid'].includes($store.app.route)" x-text="$countdown()"></p>
+    <p class="countdown" x-cloak x-show="['people', 'wishes'].includes($store.app.route)" x-text="$countdown()"></p>
   </header>
 
   <div class="years" x-cloak x-show="['people', 'budget'].includes($store.app.route) && $store.app.seasons.length">

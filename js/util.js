@@ -36,6 +36,22 @@ export function summarise(people, gifts, budgets, groups) {
   }).sort((a, b) => order(a.group) - order(b.group) || a.name.localeCompare(b.name));
 }
 
+// Grown-up passwords must meet every rule; Supabase enforces the same rules on the server.
+export const PASSWORD_RULES = [
+  ['8 or more characters', p => p.length >= 8],
+  ['An uppercase letter', p => /[A-Z]/.test(p)],
+  ['A lowercase letter', p => /[a-z]/.test(p)],
+  ['A number', p => /\d/.test(p)],
+];
+export const passwordOk = p => PASSWORD_RULES.every(([, test]) => test(p));
+
+// 0 (empty) to 3 (strong): the rules met, plus credit for length and symbols.
+export function passwordStrength(p) {
+  if (!p) return 0;
+  const score = PASSWORD_RULES.filter(([, test]) => test(p)).length + (p.length >= 12) + /[^A-Za-z0-9]/.test(p);
+  return score >= 6 ? 3 : score >= 4 ? 2 : 1;
+}
+
 export function budgetFlag(spent, budget) {
   if (!budget) return '';
   return spent > budget ? `Over by ${money(spent - budget)}` : `${money(budget - spent)} left`;

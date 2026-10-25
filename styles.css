@@ -158,7 +158,7 @@ button.avatar { cursor: pointer; }
 }
 .inline-num { width: 120px; min-height: 40px; }
 .seg { display: flex; gap: 4px; padding: 4px; margin-bottom: 14px; border-radius: 999px; background: var(--soft); }
-.seg button { flex: 1; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-weight: 700; cursor: pointer; }
+.seg button { flex: 1; min-height: 44px; padding: 4px 6px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font: inherit; font-size: .88rem; font-weight: 700; line-height: 1.2; cursor: pointer; }
 .seg button[aria-selected="true"] { background: var(--surface); color: var(--primary); box-shadow: var(--shadow); }
 
 /* Status colours */
@@ -205,7 +205,31 @@ button.avatar { cursor: pointer; }
 .legend i { width: 14px; height: 14px; border-radius: 4px; flex: none; }
 .legend b { margin-left: auto; }
 
+/* Sign-in: password eye, strength meter, rules, codes */
+.pw { position: relative; display: block; }
+.pw input { padding-right: 52px; }
+.eye {
+  position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 48px; height: 44px;
+  display: grid; place-items: center; border: 0; background: none; color: var(--muted); cursor: pointer; border-radius: 10px;
+}
+.pw-meter { display: flex; align-items: center; gap: 10px; font-size: .85rem; font-weight: 700; color: var(--muted); }
+.pw-meter .bar { flex: 1; margin: 0; }
+.pw-meter i.s1 { background: var(--danger); }
+.pw-meter i.s2 { background: var(--st-to-buy); }
+.pw-meter i.s3 { background: var(--st-bought); }
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: .88rem; color: var(--muted); }
+.rules li.met { color: var(--st-bought); font-weight: 600; }
+.field-error { color: var(--danger); font-size: .88rem; margin: 0; }
+.note.found { color: var(--st-bought); font-weight: 700; }
+.code-input { text-transform: uppercase; letter-spacing: .3em; font-size: 1.4rem; font-weight: 800; text-align: center; }
+.code-display { margin: 4px 0; text-align: center; font: 800 2rem/1.2 ui-monospace, "Cascadia Mono", Menlo, monospace; letter-spacing: .25em; color: var(--primary); }
+
 /* Settings */
+.page-title { margin: 0 0 12px; }
+.back { display: inline-flex; align-items: center; min-height: 44px; font-weight: 700; text-decoration: none; }
+.menu-icon { font-size: 1.5rem; width: 40px; text-align: center; flex: none; }
+.chev { font-size: 1.6rem; color: var(--muted); }
+.theme small { font-weight: 500; color: var(--muted); font-size: .75rem; }
 .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .theme {
   display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 80px; padding: 10px;

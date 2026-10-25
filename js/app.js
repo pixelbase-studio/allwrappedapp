@@ -2,17 +2,18 @@ import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/module.esm
 import * as db from './data.js';
 import { avatar } from './avatars.js';
 import { money, countdown, summarise } from './util.js';
-import { signin, newFamily, join } from './screens/auth.js';
+import { signin, kids } from './screens/auth.js';
 import { people } from './screens/people.js';
 import { person } from './screens/person.js';
 import { budget } from './screens/budget.js';
 import { settings } from './screens/settings.js';
 import { kid } from './screens/kid.js';
 
-const routes = { signin, 'new-family': newFamily, join, people, person, budget, settings, kid };
-const PUBLIC = ['signin', 'new-family', 'join'];
+// #/kids is the children's sign-in; #/wishes is a signed-in child's whole app.
+const routes = { signin, kids, people, person, budget, settings, wishes: kid };
+const PUBLIC = ['signin', 'kids'];
 
-for (const [name, screen] of Object.entries({ signin, newFamily, join, people, person, budget, settings, kid }))
+for (const [name, screen] of Object.entries({ gate: signin, kidsLogin: kids, people, person, budget, settings, kid }))
   Alpine.data(name, screen.data);
 Alpine.magic('avatar', () => avatar);
 Alpine.magic('money', () => money);
@@ -26,9 +27,8 @@ Alpine.store('app', {
   get season() { return this.seasons.find(s => s.id === this.seasonId); },
   get current() { return this.seasons.find(s => !s.archived); },
   get readonly() { return !!this.season?.archived; },
-  get isLead() { return this.session?.role === 'lead'; },
   get groups() { return this.session?.household.groups ?? []; },
-  get tabs() { return !!this.session && this.session.role !== 'child' && this.route !== 'join'; },
+  get tabs() { return !!this.session && this.session.role !== 'child'; },
 
   // Fresh data every time the app opens, refreshes or someone signs in.
   async load() {
@@ -37,7 +37,7 @@ Alpine.store('app', {
     this.seasons = this.session && this.session.role !== 'child' ? await db.listSeasons() : [];
     if (!this.season) this.seasonId = this.current?.id ?? null;
   },
-  async enter() { await this.load(); go(this.session.role === 'child' ? '#/kid' : '#/people'); },
+  async enter() { await this.load(); go(this.session.role === 'child' ? '#/wishes' : '#/people'); },
   async signOut() {
     document.getElementById('screen').innerHTML = ''; // tear down the screen before its data disappears
     await db.signOut();
@@ -78,14 +78,14 @@ Alpine.store('app', {
   },
 });
 
-// Hash routes (#/people, #/person/<id>, #/join/<token>) work on GitHub Pages with no server config.
+// Hash routes (#/people, #/person/<id>, #/settings/<section>) work on GitHub Pages with no server config.
 function render() {
   const app = Alpine.store('app'), role = app.session?.role;
   let [name, param = ''] = location.hash.replace(/^#\/?/, '').split('/');
   const asked = name;
   if (!routes[name]) name = 'people';
   if (!role) { if (!PUBLIC.includes(name)) name = 'signin'; }
-  else if (name !== 'join') name = role === 'child' ? 'kid' : PUBLIC.includes(name) || name === 'kid' ? 'people' : name;
+  else name = role === 'child' ? 'wishes' : PUBLIC.includes(name) || name === 'wishes' ? 'people' : name;
   if (name !== asked) param = '';
   const hash = '#/' + name + (param ? '/' + param : '');
   if (location.hash !== hash) history.replaceState(null, '', hash);

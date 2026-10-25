@@ -2,7 +2,7 @@
 // (supabase/migrations) decides what each person may read and write; these functions
 // only shape the calls and turn errors into friendly words.
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.0/+esm';
-import { num } from './util.js';
+import { num, passwordOk } from './util.js';
 
 // The publishable key is meant to be public; row-level security protects the data.
 const sb = createClient('https://thalmadesosknniscfrz.supabase.co', 'sb_publishable_Pv7K6_at-neR2BS6IR1wXw_oDWTLBl0');
@@ -14,7 +14,8 @@ function ok({ data, error }) {
   const m = error.message || '';
   if (/invalid login credentials/i.test(m)) fail("That email and password don't match. Try again?");
   if (/already registered|already been registered/i.test(m)) fail('That email already has an account. Sign in instead?');
-  if (/password should/i.test(m)) fail('Passwords need at least 6 characters.');
+  if (/password should/i.test(m)) fail('Your password needs 8 or more characters, with upper and lower case letters and a number.');
+  if (/anonymous sign-ins are disabled/i.test(m)) fail("Kids' sign-in isn't switched on yet. Ask a grown-up.");
   if (/row-level security|permission denied/i.test(m)) fail("Sorry, you can't do that.");
   if (/check constraint/i.test(m)) fail('Please check the details and try again.');
   if (/failed to fetch|network/i.test(m)) fail("Can't reach the North Pole. Check your internet connection.");
@@ -26,10 +27,11 @@ let me = null; // { userId, householdId } of the signed-in member
 // Links are clicked by other family members, so only ever store web addresses.
 const cleanUrl = u => ((u = (u ?? '').trim()) && !/^https?:\/\//i.test(u) ? 'https://' + u : u);
 
-async function signUp(email, password) {
+async function signUp(email, password, confirm) {
   email = email.trim().toLowerCase();
   if (!/^\S+@\S+\.\S+$/.test(email)) fail('Please enter a real email address.');
-  if (password.length < 6) fail('Passwords need at least 6 characters.');
+  if (!passwordOk(password)) fail('Your password needs 8 or more characters, with upper and lower case letters and a number.');
+  if (password !== confirm) fail("The two passwords don't match.");
   const data = ok(await sb.auth.signUp({ email, password }));
   if (!data.session) fail('Your account was made, but Supabase is still asking for email confirmation. Switch it off in the Supabase dashboard.');
 }
@@ -49,22 +51,42 @@ export async function getSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return (me = null);
   const userId = session.user.id;
-  const m = ok(await sb.from('members').select('role, theme, email, household:households(id, name, groups)').eq('user_id', userId).maybeSingle());
+  const m = ok(await sb.from('members').select('role, theme, email, person_id, household:households(id, name, groups)').eq('user_id', userId).maybeSingle());
   if (!m) return (me = null); // signed in, but never finished joining a household
   me = { userId, householdId: m.household.id };
-  const person = ok(await sb.from('people').select('*').eq('user_id', userId).maybeSingle());
-  return { email: m.email, theme: m.theme, role: m.role, household: m.household, person };
+  const person = m.person_id && ok(await sb.from('people').select('*').eq('id', m.person_id).single());
+  return { email: m.email, theme: m.theme, role: m.role, household: m.household, person: person || null };
 }
 
 export async function setTheme(theme) {
   ok(await sb.from('members').update({ theme }).eq('user_id', me.userId));
 }
 
-export async function createHousehold({ code, name, email, password }) {
-  if (!name.trim()) fail('Please give your household a name.');
-  if (!ok(await sb.rpc('check_family_code', { p_code: code }))) fail("That family code isn't right. Check with whoever gave it to you.");
-  await signUp(email, password);
+export async function createHousehold({ code, name, email, password, confirm }) {
+  if (!name.trim()) fail('Please give your family a name.');
+  if (!ok(await sb.rpc('check_family_code', { p_code: code }))) fail("That start-a-family code isn't right.");
+  await signUp(email, password, confirm);
   ok(await sb.rpc('create_household', { p_code: code, p_name: name.trim() }));
+}
+
+// The family's name for a grown-ups' join code, or null if the code is wrong.
+export async function checkJoinCode(code) {
+  return ok(await sb.rpc('check_join_code', { p_code: code }));
+}
+
+export async function joinHousehold({ code, email, password, confirm }) {
+  if (!(await checkJoinCode(code))) fail("That family code isn't right. Check with the grown-up who shared it.");
+  await signUp(email, password, confirm);
+  ok(await sb.rpc('join_household', { p_code: code }));
+}
+
+// Children have no password: an anonymous session on this device is linked to their profile.
+export async function kidSignIn(code, name) {
+  if (!name.trim()) fail("What's your first name?");
+  if (!code.trim()) fail("Type the kids' code a grown-up gave you.");
+  ok(await sb.auth.signInAnonymously());
+  try { ok(await sb.rpc('kid_sign_in', { p_code: code, p_name: name })); }
+  catch (e) { await sb.auth.signOut(); throw e; }
 }
 
 export async function saveGroups(groups) {
@@ -75,33 +97,20 @@ export async function saveGroups(groups) {
   ok(await q);
 }
 
-// ---- Invites ----
+// ---- Family codes and members ----
 
-export async function createInvite({ role, person_id = null, email = null }) {
-  return ok(await sb.from('invites').insert({ role, person_id, email }).select('token').single()).token;
+export async function getCodes() {
+  return ok(await sb.from('household_codes').select('join_code, kids_code').single());
 }
 
-export async function getInvite(token) {
-  return ok(await sb.rpc('get_invite', { p_token: token }));
+// which: 'join' or 'kids'. Returns the new code; the old one stops working.
+export async function resetCode(which) {
+  return ok(await sb.rpc('reset_code', { p_which: which }));
 }
 
-export async function acceptInvite(token, email, password) {
-  const invite = (await getInvite(token)) ?? fail('This invite has expired or been used.');
-  if (invite.email && invite.email.toLowerCase() !== email.trim().toLowerCase()) fail('Please use the email address this invite was made for.');
-  await signUp(email, password);
-  ok(await sb.rpc('accept_invite', { p_token: token }));
-}
-
+// One row per grown-up, and one per device a child has signed in on (person_id set).
 export async function listMembers() {
-  const [members, people] = await Promise.all([
-    sb.from('members').select('email, role, user_id').order('created_at'),
-    sb.from('people').select('name, user_id').not('user_id', 'is', null),
-  ]);
-  return ok(members).map(m => ({ email: m.email, role: m.role, person: ok(people).find(p => p.user_id === m.user_id)?.name ?? '' }));
-}
-
-export async function listInvites() {
-  return ok(await sb.from('invites').select('*').is('used_by', null).gt('expires_at', new Date().toISOString()));
+  return ok(await sb.from('members').select('email, role, person_id').order('created_at'));
 }
 
 // ---- Seasons ----

@@ -1,7 +1,7 @@
 // Run with: node test.js. Checks the countdown and budget maths.
 // The data rules (who can see what) are tested in the database: supabase/tests/rls_test.sql.
 import assert from 'assert';
-import { sleeps, christmasYear, summarise, budgetFlag, money } from './js/util.js';
+import { sleeps, christmasYear, summarise, budgetFlag, money, passwordOk, passwordStrength } from './js/util.js';
 
 assert.strictEqual(sleeps(new Date(2026, 9, 24)), 62);
 assert.strictEqual(sleeps(new Date(2026, 11, 25)), 0);
@@ -18,5 +18,14 @@ const rows = summarise(
   [{ id: 'g1', name: 'Kids' }, { id: 'g2', name: 'Friends' }],
 );
 assert.deepStrictEqual(rows.map(r => [r.name, r.count, r.spent, r.budget]), [['Zed', 2, 10, 50], ['Amy', 0, 0, 0]]);
+
+assert.strictEqual(passwordOk('Jingle123'), true);
+assert.strictEqual(passwordOk('jingle123'), false); // no uppercase
+assert.strictEqual(passwordOk('Jingle12'), true);
+assert.strictEqual(passwordOk('Jingl12'), false); // too short
+assert.strictEqual(passwordStrength(''), 0);
+assert.strictEqual(passwordStrength('abc'), 1);
+assert.strictEqual(passwordStrength('Jingle123'), 2);
+assert.strictEqual(passwordStrength('Jingle-Bells-2026'), 3);
 
 console.log('All tests passed. Ho ho ho!');

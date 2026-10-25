@@ -35,7 +35,7 @@ export const person = {
       <div class="seg" role="tablist">
         <button role="tab" :aria-selected="tab === 'gifts'" @click="tab = 'gifts'">Gifts</button>
         <button role="tab" x-show="p.kind === 'child'" :aria-selected="tab === 'wishlist'" @click="tab = 'wishlist'">Wishlist</button>
-        <button role="tab" :aria-selected="tab === 'notes'" @click="tab = 'notes'">Notes</button>
+        <button role="tab" :aria-selected="tab === 'notes'" @click="tab = 'notes'" x-text="p.kind === 'child' ? 'About' : 'Notes'"></button>
       </div>
 
       <div x-show="tab === 'gifts'">
@@ -77,9 +77,12 @@ export const person = {
       <div x-show="tab === 'notes'" class="card stack">
         <label x-show="p.kind === 'child'">Age band<select @change="savePerson({ age_band: $event.target.value })">
           <template x-for="a in ageBands"><option :value="a" x-text="a" :selected="a === p.age_band"></option></template></select></label>
-        <label>Interests<textarea x-model="p.interests" @change="savePerson({ interests: p.interests })"></textarea></label>
-        <label>Hobbies<textarea x-model="p.hobbies" @change="savePerson({ hobbies: p.hobbies })"></textarea></label>
-        <label>Notes<textarea x-model="p.notes" @change="savePerson({ notes: p.notes })" placeholder="Sizes, favourite colours, things they already have..."></textarea></label>
+        <p class="note" x-show="p.kind === 'child'">For privacy we only keep a child's first name, age band and wishes.</p>
+        <template x-if="p.kind !== 'child'"><div class="stack">
+          <label>Interests<textarea x-model="p.interests" @change="savePerson({ interests: p.interests })"></textarea></label>
+          <label>Hobbies<textarea x-model="p.hobbies" @change="savePerson({ hobbies: p.hobbies })"></textarea></label>
+          <label>Notes<textarea x-model="p.notes" @change="savePerson({ notes: p.notes })" placeholder="Sizes, favourite colours, things they already have..."></textarea></label>
+        </div></template>
       </div>
       <p class="note">Tap the name, avatar, group or budget above to change them.</p>
       <button class="btn danger wide" @click="remove">Delete <span x-text="p.name"></span></button>
