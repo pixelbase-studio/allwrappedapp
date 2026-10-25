@@ -1,6 +1,7 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/module.esm.js';
 import * as db from './data.js';
 import { avatar } from './avatars.js';
+import { icon } from './icons.js';
 import { money, countdown, summarise } from './util.js';
 import { signin, kids } from './screens/auth.js';
 import { people } from './screens/people.js';
@@ -16,6 +17,7 @@ const PUBLIC = ['signin', 'kids'];
 for (const [name, screen] of Object.entries({ gate: signin, kidsLogin: kids, people, person, budget, settings, kid }))
   Alpine.data(name, screen.data);
 Alpine.magic('avatar', () => avatar);
+Alpine.magic('icon', () => icon);
 Alpine.magic('money', () => money);
 Alpine.magic('countdown', () => countdown);
 

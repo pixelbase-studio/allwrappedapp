@@ -12,13 +12,13 @@ const THEMES = [
 ];
 
 const SECTIONS = [
-  { key: 'appearance', icon: '🎨', label: 'Appearance', note: 'Theme' },
-  { key: 'family', icon: '👪', label: 'Family', note: 'Join code and grown-ups' },
-  { key: 'children', icon: '🧒', label: 'Children', note: "Add children and the kids' sign-in" },
-  { key: 'groups', icon: '🗂️', label: 'Groups and list order', note: 'How the People list is grouped' },
-  { key: 'budget', icon: '💷', label: 'Budget', note: 'Overall budget for this Christmas' },
-  { key: 'print', icon: '🖨️', label: 'Print lists', note: "Print one person's list" },
-  { key: 'account', icon: '👤', label: 'Account', note: 'Your email and sign out' },
+  { key: 'appearance', icon: 'palette', label: 'Appearance', note: '' },
+  { key: 'family', icon: 'home', label: 'Family', note: 'Join code and grown-ups' },
+  { key: 'children', icon: 'child', label: 'Children', note: "Add children and the kids' sign-in" },
+  { key: 'groups', icon: 'layers', label: 'Groups and list order', note: 'How the People list is grouped' },
+  { key: 'budget', icon: 'pound', label: 'Budget', note: 'Overall budget for this Christmas' },
+  { key: 'print', icon: 'printer', label: 'Print lists', note: "Print one person's list" },
+  { key: 'account', icon: 'person', label: 'Account', note: 'Your email and sign out' },
 ];
 
 // A card showing a shareable code, its buttons, and a way to replace it.
@@ -41,9 +41,9 @@ export const settings = {
         <ul class="list">
           <template x-for="s in sections" :key="s.key">
             <li><a class="row" :href="'#/settings/' + s.key">
-              <span class="menu-icon" aria-hidden="true" x-text="s.icon"></span>
-              <span class="grow"><b x-text="s.label"></b><span class="meta" x-text="s.note"></span></span>
-              <span class="chev" aria-hidden="true">›</span>
+              <span class="menu-icon" x-html="$icon(s.icon)"></span>
+              <span class="grow"><b x-text="s.label"></b><span class="meta" x-show="s.note" x-text="s.note"></span></span>
+              <span class="chev" x-html="$icon('chevron')"></span>
             </a></li>
           </template>
         </ul>
