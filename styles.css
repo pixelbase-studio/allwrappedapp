@@ -300,3 +300,26 @@ button.link.center { align-self: center; }
 .door:active { transform: scale(.97); }
 .kid-door { background: var(--soft); }
 button.back { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
+
+/* Movement: slide in when going a level deeper, back when returning. Fixed parts (the + button, sheets) stay put. */
+@keyframes from-right { from { transform: translateX(28px); opacity: 0; } }
+@keyframes from-left { from { transform: translateX(-28px); opacity: 0; } }
+#screen.slide-in > section > :not(.fab, .sheet-wrap) { animation: from-right .22s ease-out; }
+#screen.slide-back > section > :not(.fab, .sheet-wrap) { animation: from-left .22s ease-out; }
+@media (prefers-reduced-motion: reduce) { #screen > section > * { animation: none !important; } }
+
+/* A ribbon and bow on wrapped gifts; presents that fill up as gifts are bought */
+.row.wrapped { box-shadow: inset 6px 0 0 var(--accent), var(--shadow); }
+.bow { color: var(--accent); flex: none; margin-left: -4px; }
+.bow .ico { width: 24px; height: 24px; }
+.presents { display: inline-flex; align-items: center; gap: 2px; }
+.presents i { display: grid; color: var(--line); }
+.presents i.ready { color: var(--primary); }
+.presents .ico { width: 16px; height: 16px; }
+
+/* Paper texture: a faint grain over the background, like wrapping paper */
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .7 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media print { body::before { display: none; } }

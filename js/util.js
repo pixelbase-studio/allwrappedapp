@@ -32,9 +32,10 @@ export function summarise(people, gifts, budgets, groups) {
   const order = id => { const i = groups.findIndex(g => g.id === id); return i < 0 ? groups.length : i; };
   return people.map(p => {
     const theirs = gifts.filter(g => g.person_id === p.id);
-    const spent = theirs.filter(g => SPENT.includes(g.status)).reduce((s, g) => s + (g.price || 0), 0);
+    const bought = theirs.filter(g => SPENT.includes(g.status));
+    const spent = bought.reduce((s, g) => s + (g.price || 0), 0);
     const budget = budgets.find(b => b.person_id === p.id)?.amount || 0;
-    return { ...p, count: theirs.length, spent, budget, groupName: groups.find(g => g.id === p.group)?.name ?? '' };
+    return { ...p, count: theirs.length, ready: bought.length, spent, budget, groupName: groups.find(g => g.id === p.group)?.name ?? '' };
   }).sort((a, b) => order(a.group) - order(b.group) || a.name.localeCompare(b.name));
 }
 

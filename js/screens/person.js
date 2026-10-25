@@ -34,7 +34,8 @@ export const person = {
         </template>
         <ul class="list">
           <template x-for="g in gifts" :key="g.id">
-            <li class="row" :role="ro ? null : 'button'" :tabindex="ro ? -1 : 0" @click="openGift(g)" @keydown.enter="openGift(g)">
+            <li class="row" :class="{ wrapped: g.status === 'wrapped' }" :role="ro ? null : 'button'" :tabindex="ro ? -1 : 0" @click="openGift(g)" @keydown.enter="openGift(g)">
+              <span class="bow" x-show="g.status === 'wrapped'" x-html="$icon('bow')"></span>
               <span class="grow"><b x-text="g.name"></b>
                 <span class="meta"><a x-show="g.url" :href="g.url" target="_blank" rel="noopener" @click.stop>Shop link</a>
                   <span x-text="g.note"></span></span></span>

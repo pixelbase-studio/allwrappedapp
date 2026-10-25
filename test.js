@@ -20,7 +20,7 @@ const rows = summarise(
   [{ person_id: 'a', amount: 50 }],
   [{ id: 'g1', name: 'Kids' }, { id: 'g2', name: 'Friends' }],
 );
-assert.deepStrictEqual(rows.map(r => [r.name, r.count, r.spent, r.budget]), [['Zed', 2, 10, 50], ['Amy', 0, 0, 0]]);
+assert.deepStrictEqual(rows.map(r => [r.name, r.count, r.ready, r.spent, r.budget]), [['Zed', 2, 1, 10, 50], ['Amy', 0, 0, 0, 0]]);
 
 assert.strictEqual(passwordOk('Jingle123'), true);
 assert.strictEqual(passwordOk('jingle123'), false); // no uppercase

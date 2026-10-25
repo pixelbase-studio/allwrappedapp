@@ -29,7 +29,10 @@ export const people = {
           <span class="grow">
             <b x-text="p.name"></b>
             <span class="meta"><span class="tag" x-show="p.groupName" x-text="p.groupName"></span>
-              <span x-text="p.count + (p.count === 1 ? ' gift' : ' gifts')"></span></span>
+              <span class="presents" role="img" :aria-label="p.count ? p.ready + ' of ' + p.count + ' gifts bought' : 'No gifts yet'">
+                <template x-for="i in Math.min(p.count, 8)"><i :class="{ ready: i <= p.ready }" x-html="$icon('gift')"></i></template>
+                <span x-show="p.count > 8" x-text="'+' + (p.count - 8)"></span>
+                <span x-show="!p.count">No gifts yet</span></span></span>
             <span class="bar" x-show="p.budget"><i :class="{ over: p.spent > p.budget }" :style="'width:' + Math.min(100, p.spent / p.budget * 100) + '%'"></i></span>
           </span>
           <span class="amount" x-text="$money(p.spent) + (p.budget ? ' of ' + $money(p.budget) : ' spent')"></span>
