@@ -47,21 +47,28 @@ const form = fields => ({
   },
 });
 
+// The four doors on the first screen. Kids go to their own sign-in.
 const MODES = {
-  signin: { tab: 'Sign in', title: 'Ho ho ho!', text: "Sign in to your family's gift lists.", button: 'Sign in' },
-  start: { tab: 'Start a family', title: 'Start a family', text: "Elves at work! You'll be your family's lead grown-up.", button: 'Create our family' },
-  join: { tab: 'Join a family', title: 'Join a family', text: 'Use the code a grown-up in your family shared with you.', button: 'Join the family' },
+  signin: { door: "I've got an account", icon: 'person', title: 'Welcome back!', text: "Sign in to your family's gift lists.", button: 'Sign in' },
+  start: { door: 'Start a new family', icon: 'home', title: 'Start a family', text: "Elves at work! You'll be your family's lead grown-up.", button: 'Create our family' },
+  join: { door: 'Join my family', icon: 'gift', title: 'Join a family', text: 'Use the code a grown-up in your family shared with you.', button: 'Join the family' },
 };
 
 export const signin = {
   template: `
   <section class="pad" x-data="gate">
-    ${hero('santa', 'modes[mode].title', 'modes[mode].text')}
-    <div class="seg" role="tablist" aria-label="Choose">
-      <template x-for="(m, key) in modes" :key="key">
-        <button type="button" role="tab" :aria-selected="mode === key" @click="setMode(key)" x-text="m.tab"></button>
-      </template>
-    </div>
+    ${hero('santa', "mode ? modes[mode].title : 'Ho ho ho!'", "mode ? modes[mode].text : 'Who’s here?'")}
+    <template x-if="!mode">
+      <div class="doors">
+        <template x-for="(m, key) in modes" :key="key">
+          <button type="button" class="door" @click="setMode(key)"><span x-html="$icon(m.icon)"></span><b x-text="m.door"></b></button>
+        </template>
+        <a class="door kid-door" href="#/kids"><span x-html="$icon('star')"></span><b>I'm a kid</b></a>
+      </div>
+    </template>
+    <template x-if="mode">
+    <div class="stack">
+    <button type="button" class="back" @click="setMode(null)">‹ Back</button>
     <form class="card stack" @submit.prevent="submit">
       <template x-if="mode === 'join'">
         <div class="stack">
@@ -82,10 +89,11 @@ export const signin = {
       <p class="error" x-show="error" x-text="error" role="alert"></p>
       <button class="btn primary" :disabled="busy" x-text="modes[mode].button"></button>
     </form>
-    <p class="center"><a class="btn ghost" href="#/kids">Are you a kid? Sign in here</a></p>
+    </div>
+    </template>
   </section>`,
   data: () => ({
-    ...form({ mode: 'signin', code: '', name: '', email: '', password: '', confirm: '', family: '' }),
+    ...form({ mode: null, code: '', name: '', email: '', password: '', confirm: '', family: '' }),
     modes: MODES, rules: PASSWORD_RULES, strength: passwordStrength,
     setMode(mode) { Object.assign(this, { mode, code: '', family: '', confirm: '', error: '' }); },
     async lookUp() {

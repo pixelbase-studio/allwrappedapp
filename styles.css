@@ -286,3 +286,17 @@ button.link.center { align-self: center; }
 .sleeps-label { margin: 0; font: 600 var(--fs-title, 1.125rem)/1.3 var(--font-display); }
 .countdown-hero .hi { margin: 14px 0 0; color: var(--muted); }
 .countdown b { font-size: 1.25em; }
+
+/* Sign-in: four doors */
+.doors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.door {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 132px; padding: 16px 10px;
+  border: 2px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink);
+  font: inherit; text-align: center; text-decoration: none; cursor: pointer; box-shadow: var(--shadow); transition: transform .12s, border-color .12s;
+}
+.door .ico { width: 34px; height: 34px; color: var(--primary); }
+.door b { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-title); line-height: 1.2; }
+.door:hover, .door:focus-visible { border-color: var(--primary); }
+.door:active { transform: scale(.97); }
+.kid-door { background: var(--soft); }
+button.back { align-self: flex-start; background: none; border: 0; padding: 0; color: var(--primary); font: inherit; font-weight: 700; cursor: pointer; }
