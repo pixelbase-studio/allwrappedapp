@@ -11,13 +11,16 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="All Wrapped">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="js/app.js"></script>
 </head>
 <body x-data :class="{ 'has-tabs': $store.app.tabs }">
   <header class="top">
     <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</a>
-    <p class="countdown" x-cloak x-show="['people', 'wishes'].includes($store.app.route)" x-text="$countdown()"></p>
+    <p class="countdown" x-cloak x-show="$store.app.route === 'people'"><b x-text="$countdown().number"></b> <span x-text="$countdown().label"></span></p>
   </header>
 
   <div class="years" x-cloak x-show="['people', 'budget'].includes($store.app.route) && $store.app.seasons.length">

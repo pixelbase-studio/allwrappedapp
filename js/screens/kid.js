@@ -1,13 +1,14 @@
 import * as db from '../data.js';
 
-// The child's whole app: their avatar, name, the countdown (in the header) and their own wishlist.
+// The child's whole app: the countdown as the big moment, then their own wishlist.
 export const kid = {
   template: `
   <section class="pad" x-data="kid">
-    <div class="hero">
+    <div class="countdown-hero">
       <div class="avatar xl" x-html="$avatar(me?.avatar)"></div>
-      <h1 x-text="'Hi ' + (me?.name ?? '') + '!'"></h1>
-      <p>What would you like for Christmas?</p>
+      <p class="sleeps" x-show="$countdown().number" x-text="$countdown().number"></p>
+      <p class="sleeps-label" x-text="$countdown().label"></p>
+      <p class="hi" x-text="'Hi ' + (me?.name ?? '') + '! What would you like?'"></p>
     </div>
     <h2>My wishlist</h2>
     <template x-if="loaded && !wishes.length">

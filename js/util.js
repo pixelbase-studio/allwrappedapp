@@ -20,9 +20,11 @@ export function sleeps(now = new Date()) {
   return Math.round((new Date(christmasYear(now), 11, 25) - today) / 864e5);
 }
 
+// The countdown as a big number and the words that go with it.
 export function countdown(n = sleeps()) {
-  if (n === 0) return 'Merry Christmas! Ho ho ho!';
-  return n === 1 ? '1 sleep until Christmas!' : `${n} sleeps until Christmas`;
+  if (n === 0) return { number: '', label: 'Merry Christmas! Ho ho ho!' };
+  if (n === 1) return { number: 1, label: "more sleep. It's Christmas Eve!" };
+  return { number: n, label: 'sleeps until Christmas' };
 }
 
 // One row per person with their gift count, spend and budget, in group (list) order.
