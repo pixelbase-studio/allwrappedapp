@@ -1,5 +1,5 @@
 import * as db from '../data.js';
-import { summarise, STATUSES, AGE_BANDS } from '../util.js';
+import { summarise, money, STATUSES, AGE_BANDS } from '../util.js';
 import { AVATARS } from '../avatars.js';
 import { avatarPicker } from './people.js';
 
@@ -12,25 +12,12 @@ export const person = {
   <section class="pad" x-data="person">
     <template x-if="p"><div>
       <div class="person-head">
-        <button class="avatar xl" @click="avatarSheet = true" aria-label="Change avatar" x-html="$avatar(p.avatar)"></button>
+        <span class="avatar xl" x-html="$avatar(p.avatar)"></span>
         <div class="grow">
-          <h1 class="editable" x-show="!editName" role="button" tabindex="0" title="Tap to edit" :aria-label="'Edit name: ' + p.name"
-            @click="editName = true; $refs.name.value = p.name; $nextTick(() => { $refs.name.focus(); $refs.name.select(); })" @keydown.enter="$el.click()"><span x-text="p.name"></span> <span class="pencil" aria-hidden="true">✎</span></h1>
-          <form class="name-edit" x-show="editName" @submit.prevent="editName = false; savePerson({ name: $refs.name.value })" @keydown.escape="editName = false">
-            <input class="title-input" x-ref="name" aria-label="Name" required>
-            <button class="btn primary small">Save</button>
-          </form>
-          <select class="tag-select" x-show="!$store.app.kid" aria-label="Group" @change="savePerson({ group: $event.target.value || null })">${groupOptions('p.group')}</select>
-          <p class="meta" x-show="$store.app.kid" x-text="$money(p.spent) + ' spent'"></p>
-          <p class="meta" x-show="!$store.app.kid">
-            <span x-text="$money(p.spent) + ' spent of'"></span>
-            <button class="link" x-show="!editBudget" :disabled="ro" x-text="p.budget ? $money(p.budget) + ' budget' : 'no budget yet'"
-              @click="editBudget = true; $nextTick(() => $refs.budget.focus())"></button>
-            <input class="inline-num" x-show="editBudget" x-ref="budget" type="number" inputmode="decimal" min="0" step="0.01" x-model="budget"
-              aria-label="Budget in pounds" @keydown.enter.prevent="$el.blur()" @blur="saveBudget">
-          </p>
+          <h1 x-text="p.name"></h1>
+          <p class="meta" x-text="summary"></p>
         </div>
-        <button class="btn ghost small" x-show="!editName && !$store.app.kid" @click="$store.app.print(p.id)">Print</button>
+        <button class="btn ghost small" @click="openEdit">Edit</button>
       </div>
 
       <div class="seg" role="tablist">
@@ -47,7 +34,8 @@ export const person = {
         </template>
         <ul class="list">
           <template x-for="g in gifts" :key="g.id">
-            <li class="row" :role="ro ? null : 'button'" :tabindex="ro ? -1 : 0" @click="openGift(g)" @keydown.enter="openGift(g)">
+            <li class="row" :class="{ wrapped: g.status === 'wrapped' }" :role="ro ? null : 'button'" :tabindex="ro ? -1 : 0" @click="openGift(g)" @keydown.enter="openGift(g)">
+              <span class="bow" x-show="g.status === 'wrapped'" x-html="$icon('bow')"></span>
               <span class="grow"><b x-text="g.name"></b>
                 <span class="meta"><a x-show="g.url" :href="g.url" target="_blank" rel="noopener" @click.stop>Shop link</a>
                   <span x-text="g.note"></span></span></span>
@@ -90,8 +78,6 @@ export const person = {
           <label>Notes<textarea x-model="p.notes" @change="savePerson({ notes: p.notes })" placeholder="Sizes, favourite colours, things they already have..."></textarea></label>
         </div></template>
       </div>
-      <p class="note" x-text="$store.app.kid ? 'Tap the name or picture above to change them.' : 'Tap the name, avatar, group or budget above to change them.'"></p>
-      <button class="btn danger wide" @click="remove">Delete <span x-text="p.name"></span></button>
     </div></template>
 
     <div class="sheet-wrap" x-show="sheet" x-cloak @keydown.escape.window="sheet = false">
@@ -128,20 +114,40 @@ export const person = {
       </div>
     </div>
 
-    <div class="sheet-wrap" x-show="avatarSheet" x-cloak @keydown.escape.window="avatarSheet = false">
-      <div class="backdrop" @click="avatarSheet = false"></div>
-      <div class="sheet stack" role="dialog" aria-modal="true" aria-label="Choose an avatar">
-        <h2>Choose an avatar</h2>
-        <template x-if="p">${avatarPicker('p', 'avatarSheet = false; savePerson({ avatar: key })')}</template>
-      </div>
+    <div class="sheet-wrap" x-show="edit" x-cloak @keydown.escape.window="edit = false">
+      <div class="backdrop" @click="edit = false"></div>
+      <form class="sheet stack" role="dialog" aria-modal="true" :aria-label="'Edit ' + (p?.name ?? '')" @submit.prevent="saveEdit">
+        <h2 x-text="'Edit ' + (p?.name ?? '')"></h2>
+        <label>Name<input x-model="draft.name" required x-ref="editName"></label>
+        <template x-if="!$store.app.kid">
+          <div class="two">
+            <label>Group<select x-model="draft.group">${groupOptions('draft.group')}</select></label>
+            <label>Budget (£)<input type="number" inputmode="decimal" min="0" step="0.01" x-model="draft.budget" :disabled="ro"></label>
+          </div>
+        </template>
+        <p class="label">Picture</p>
+        ${avatarPicker('draft')}
+        <p class="error" x-show="error" x-text="error" role="alert"></p>
+        <div class="actions">
+          <button type="button" class="btn danger" @click="remove">Delete</button>
+          <button type="button" class="btn ghost" x-show="!$store.app.kid" @click="$store.app.print(p.id)">Print</button>
+          <span class="grow"></span>
+          <button class="btn primary">Save</button>
+        </div>
+      </form>
     </div>
   </section>`,
 
   data: () => ({
-    p: null, gifts: [], wishes: [], tab: 'gifts', budget: '', editName: false, editBudget: false,
-    sheet: false, more: false, form: {}, error: '', picking: null, avatarSheet: false,
+    p: null, gifts: [], wishes: [], tab: 'gifts', edit: false, draft: {},
+    sheet: false, more: false, form: {}, error: '', picking: null,
     statuses: STATUSES, ageBands: AGE_BANDS, avatarKeys: Object.keys(AVATARS),
     get ro() { return this.$store.app.readonly; },
+    get summary() {
+      const { spent, budget, groupName } = this.p;
+      if (this.$store.app.kid) return money(spent) + ' spent';
+      return [groupName, budget ? `${money(spent)} of ${money(budget)}` : `${money(spent)} spent`].filter(Boolean).join(' · ');
+    },
     init() { this.load(); },
     async load() {
       const id = this.$store.app.param, s = this.$store.app.seasonId;
@@ -150,16 +156,24 @@ export const person = {
       if (!this.p) return (location.hash = '#/people');
       this.gifts = gifts.filter(g => g.person_id === id);
       this.wishes = this.p.kind === 'child' ? await db.listWishes(id) : [];
-      this.budget = this.p.budget || '';
     },
     async savePerson(patch) {
       try { await db.updatePerson(this.p.id, patch); } catch (e) { this.$store.app.toast(e.message); }
       this.load();
     },
-    async saveBudget() {
-      this.editBudget = false;
-      await db.setBudget(this.p.id, this.$store.app.seasonId, this.budget);
-      this.load();
+    openEdit() {
+      const { name, group, budget, avatar } = this.p;
+      this.draft = { name, group: group ?? '', budget: budget || '', avatar };
+      this.error = ''; this.edit = true;
+    },
+    async saveEdit() {
+      try {
+        const { name, group, budget, avatar } = this.draft;
+        await db.updatePerson(this.p.id, { name, avatar, ...(this.$store.app.kid ? {} : { group: group || null }) });
+        if (!this.$store.app.kid && !this.ro && String(budget) !== String(this.p.budget || '')) await db.setBudget(this.p.id, this.$store.app.seasonId, budget);
+        this.edit = false;
+        this.load();
+      } catch (e) { this.error = e.message; }
     },
     openGift(g) {
       if (this.ro) return;

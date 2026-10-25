@@ -104,6 +104,7 @@ begin
   perform public.kid_sign_in(kids_c, 'KidB');
   perform pg_temp.act(kid);
   insert into public.people (name, owner_id) values ('Mum', kid_p) returning id into mum_p;
+  perform pg_temp.check((select string_agg(name, ',' order by name) from public.kids_for_code(lower(kids_c))) = 'Kid,KidB', 'the kids picker lists only the family''s children');
   insert into public.gifts (person_id, season_id, name, price, status) values (mum_p, public.current_season(), 'Mug', 6, 'bought');
   perform pg_temp.check((select count(*) from public.people) = 2, 'child sees themselves and their own list');
   perform pg_temp.check((select count(*) from public.gifts) = 1, 'child sees the gifts on their own list');
@@ -175,6 +176,7 @@ select pg_temp.check(pg_temp.fails('select * from public.people'), 'anon cannot 
 select pg_temp.check(pg_temp.fails('select * from public.household_codes'), 'anon cannot read codes');
 select pg_temp.check(public.check_family_code('rlstestcode'), 'anon can check a creation code');
 select pg_temp.check(public.check_join_code('zzzzzz') is null, 'anon gets nothing for a wrong join code');
+select pg_temp.check((select count(*) from public.kids_for_code('zzzzzz')) = 0, 'anon gets no children for a wrong kids code');
 reset role;
 
 select 'All RLS tests passed' as result;

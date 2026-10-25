@@ -1,6 +1,7 @@
 import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/module.esm.js';
 import * as db from './data.js';
 import { avatar } from './avatars.js';
+import { icon } from './icons.js';
 import { money, countdown, summarise } from './util.js';
 import { signin, kids } from './screens/auth.js';
 import { people } from './screens/people.js';
@@ -16,6 +17,7 @@ const PUBLIC = ['signin', 'kids'];
 for (const [name, screen] of Object.entries({ gate: signin, kidsLogin: kids, people, person, budget, settings, kid }))
   Alpine.data(name, screen.data);
 Alpine.magic('avatar', () => avatar);
+Alpine.magic('icon', () => icon);
 Alpine.magic('money', () => money);
 Alpine.magic('countdown', () => countdown);
 
@@ -84,6 +86,7 @@ Alpine.store('app', {
 });
 
 // Hash routes (#/people, #/person/<id>, #/settings/<section>) work on GitHub Pages with no server config.
+let lastDepth = 0;
 function render() {
   const app = Alpine.store('app'), role = app.session?.role;
   let [name, param = ''] = location.hash.replace(/^#\/?/, '').split('/');
@@ -97,7 +100,14 @@ function render() {
   if (location.hash !== hash) history.replaceState(null, '', hash);
   app.route = name;
   app.param = decodeURIComponent(param);
-  document.getElementById('screen').innerHTML = routes[name].template;
+  const screen = document.getElementById('screen');
+  screen.innerHTML = routes[name].template;
+  // Slide in from the right when going a level deeper, from the left when coming back.
+  const depth = name === 'person' || (name === 'settings' && param) ? 1 : 0;
+  screen.className = '';
+  void screen.offsetWidth; // restart the animation
+  screen.className = depth > lastDepth ? 'slide-in' : depth < lastDepth ? 'slide-back' : '';
+  lastDepth = depth;
   window.scrollTo(0, 0);
 }
 
