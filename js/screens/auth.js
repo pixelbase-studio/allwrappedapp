@@ -100,19 +100,42 @@ export const signin = {
   }),
 };
 
-// Opened from the kids' link a grown-up shares: first name and the kids' code, no password.
+// Opened from the kids' link a grown-up shares: the kids' code, then the child taps their own face.
 export const kids = {
   template: `
   <section class="pad" x-data="kidsLogin">
-    ${hero('elf', "'Hello!'", "'Let\\'s find your wishlist.'")}
-    <form class="card stack" @submit.prevent="run(() => db.kidSignIn(code, name))">
-      <label>Your first name<input x-model="name" required autocomplete="given-name" autocapitalize="words"></label>
-      <label>Kids' code<input class="code-input" x-model="code" maxlength="6" required autocomplete="off" autocapitalize="characters" spellcheck="false" @input="code = code.toUpperCase()"></label>
-      <p class="note">A grown-up can find this code in Settings, under Children.</p>
-      <p class="error" x-show="error" x-text="error" role="alert"></p>
-      <button class="btn primary" :disabled="busy">Let's go!</button>
-    </form>
+    ${hero('elf', "kids.length ? 'Which one is you?' : 'Hello!'", "kids.length ? 'Tap your picture.' : 'Type the kids\\' code a grown-up gave you.'")}
+    <template x-if="!kids.length">
+      <form class="card stack" @submit.prevent="findKids">
+        <label>Kids' code<input class="code-input" x-model="code" maxlength="6" required autocomplete="off" autocapitalize="characters" spellcheck="false" @input="code = code.toUpperCase()"></label>
+        <p class="error" x-show="error" x-text="error" role="alert"></p>
+        <button class="btn primary" :disabled="busy">Next</button>
+      </form>
+    </template>
+    <template x-if="kids.length">
+      <div class="stack">
+        <div class="kid-picker">
+          <template x-for="k in kids" :key="k.name">
+            <button type="button" class="kid-pick" :disabled="busy" @click="run(() => db.kidSignIn(code, k.name))">
+              <span class="avatar xl" x-html="$avatar(k.avatar)"></span><b x-text="k.name"></b>
+            </button>
+          </template>
+        </div>
+        <p class="error" x-show="error" x-text="error" role="alert"></p>
+        <button class="link center" @click="kids = []; error = ''">Wrong family? Use a different code</button>
+      </div>
+    </template>
     <p class="center"><a href="#/signin">Grown-ups sign in here</a></p>
   </section>`,
-  data: () => ({ ...form({ name: '', code: '' }), db }),
+  data: () => ({
+    ...form({ code: '', kids: [] }), db,
+    async findKids() {
+      this.busy = true; this.error = '';
+      try {
+        this.kids = await db.kidsForCode(this.code);
+        if (!this.kids.length) this.error = "That code isn't right, or no children have been added yet. Ask a grown-up.";
+      } catch (e) { this.error = e.message; }
+      this.busy = false;
+    },
+  }),
 };

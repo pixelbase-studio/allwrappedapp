@@ -80,6 +80,11 @@ export async function joinHousehold({ code, email, password, confirm }) {
   ok(await sb.rpc('join_household', { p_code: code }));
 }
 
+// The family's children (first name and avatar) for a kids' code, so a child can tap their own face.
+export async function kidsForCode(code) {
+  return ok(await sb.rpc('kids_for_code', { p_code: code }));
+}
+
 // Children have no password: an anonymous session on this device is linked to their profile.
 export async function kidSignIn(code, name) {
   if (!name.trim()) fail("What's your first name?");
