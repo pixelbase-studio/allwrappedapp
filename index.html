@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en-GB" data-theme="santa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>All Wrapped</title>
+  <meta name="description" content="Your family's Christmas gift lists, all wrapped up.">
+  <meta name="theme-color" content="#a50d24">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="All Wrapped">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body x-data :class="{ 'has-tabs': $store.app.tabs }">
+  <header class="top">
+    <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</a>
+    <p class="countdown" x-cloak x-show="['people', 'kid'].includes($store.app.route)" x-text="$countdown()"></p>
+  </header>
+
+  <div class="years" x-cloak x-show="['people', 'budget'].includes($store.app.route) && $store.app.seasons.length">
+    <label class="sr-only" for="year">Christmas year</label>
+    <select id="year" @change="$store.app.pickSeason($el)">
+      <template x-for="s in $store.app.seasons" :key="s.id">
+        <option :value="s.id" :selected="s.id === $store.app.seasonId" x-text="'Christmas ' + s.year + (s.archived ? ' (archived, read-only)' : '')"></option>
+      </template>
+      <option value="new">+ Add next year</option>
+    </select>
+  </div>
+
+  <main id="screen"></main>
+
+  <footer class="foot" x-cloak x-show="$store.app.session">Wrapped with love by the elves for <span x-text="$store.app.session?.household.name"></span></footer>
+
+  <nav class="tabs" aria-label="Main" x-cloak x-show="$store.app.tabs">
+    <a href="#/people" :aria-current="['people', 'person'].includes($store.app.route) && 'page'"><span aria-hidden="true">🎄</span>People</a>
+    <a href="#/budget" :aria-current="$store.app.route === 'budget' && 'page'"><span aria-hidden="true">💷</span>Budget</a>
+    <a href="#/settings" :aria-current="$store.app.route === 'settings' && 'page'"><span aria-hidden="true">⚙️</span>Settings</a>
+  </nav>
+
+  <div class="sheet-wrap top-layer" x-cloak x-show="$store.app.ask" @keydown.escape.window="$store.app.ask && $store.app.answer(false)">
+    <div class="backdrop" @click="$store.app.answer(false)"></div>
+    <div class="sheet stack" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+      <h2 id="confirm-title">Are you sure?</h2>
+      <p x-text="$store.app.ask?.msg"></p>
+      <div class="actions"><span class="grow"></span>
+        <button class="btn ghost" @click="$store.app.answer(false)">Cancel</button>
+        <button class="btn primary" @click="$store.app.answer(true)">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" role="status" x-cloak x-show="$store.app.toastMsg" x-text="$store.app.toastMsg"></div>
+
+  <div id="print" x-data="{ get d() { return this.$store.app.printData } }">
+    <template x-if="d"><div>
+      <h1><span x-text="d.name"></span>: Christmas <span x-text="d.year"></span></h1>
+      <p><span x-text="d.groupName"></span> · Budget <span x-text="$money(d.budget) || 'not set'"></span> · Spent <span x-text="$money(d.spent)"></span></p>
+      <h2>Gifts</h2>
+      <p x-show="!d.gifts.length">No gifts yet.</p>
+      <table x-show="d.gifts.length">
+        <thead><tr><th>Gift</th><th>Price</th><th>Status</th><th>Notes and link</th></tr></thead>
+        <tbody><template x-for="g in d.gifts" :key="g.id">
+          <tr><td x-text="g.name"></td><td x-text="$money(g.price)"></td><td x-text="g.status"></td><td x-text="[g.note, g.url].filter(Boolean).join(' · ')"></td></tr>
+        </template></tbody>
+      </table>
+      <template x-if="d.wishes.length"><div>
+        <h2>Wishlist</h2>
+        <ul><template x-for="w in d.wishes" :key="w.id"><li x-text="w.name + (w.price ? ' (' + $money(w.price) + ')' : '')"></li></template></ul>
+      </div></template>
+      <h2>Notes</h2>
+      <p x-show="d.interests"><b>Interests:</b> <span x-text="d.interests"></span></p>
+      <p x-show="d.hobbies"><b>Hobbies:</b> <span x-text="d.hobbies"></span></p>
+      <p x-show="d.notes" x-text="d.notes"></p>
+    </div></template>
+  </div>
+</body>
+</html>
