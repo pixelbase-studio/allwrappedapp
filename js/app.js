@@ -97,7 +97,7 @@ function render() {
 
 window.Alpine = Alpine;
 Alpine.start();
-await Alpine.store('app').load();
+await Alpine.store('app').load().catch(e => Alpine.store('app').toast(e.message));
 window.addEventListener('hashchange', render);
 render();
 

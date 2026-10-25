@@ -101,7 +101,6 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 .center { text-align: center; }
 .card { background: var(--surface); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin: 0 0 12px; }
 .note { color: var(--muted); font-size: .9rem; margin: 8px 0; }
-.demo { border: 1.5px dashed var(--line); border-radius: 12px; padding: 10px 12px; }
 .error { color: var(--danger); background: #fde8ea; border-radius: 10px; padding: 8px 12px; margin: 0; }
 .row-form { display: flex; gap: 8px; }
 .hero { text-align: center; padding: 8px 0 16px; }

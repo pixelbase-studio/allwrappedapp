@@ -30,7 +30,6 @@ export const signin = {
     </form>
     <p class="note">Have an invite? Open the link you were sent.</p>
     <p class="center"><a class="btn ghost" href="#/new-family">Start a new family</a></p>
-    <p class="note demo">Prototype logins (password <b>jingle</b>): nick@example.com (lead), holly@example.com (adult), ivy@example.com (child). Family code: <b>NORTHPOLE</b></p>
   </section>`,
   data: () => ({ ...form({ email: '', password: '' }), db }),
 };
