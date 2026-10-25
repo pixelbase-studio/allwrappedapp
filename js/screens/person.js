@@ -20,8 +20,9 @@ export const person = {
             <input class="title-input" x-ref="name" aria-label="Name" required>
             <button class="btn primary small">Save</button>
           </form>
-          <select class="tag-select" aria-label="Group" @change="savePerson({ group: $event.target.value || null })">${groupOptions('p.group')}</select>
-          <p class="meta">
+          <select class="tag-select" x-show="!$store.app.kid" aria-label="Group" @change="savePerson({ group: $event.target.value || null })">${groupOptions('p.group')}</select>
+          <p class="meta" x-show="$store.app.kid" x-text="$money(p.spent) + ' spent'"></p>
+          <p class="meta" x-show="!$store.app.kid">
             <span x-text="$money(p.spent) + ' spent of'"></span>
             <button class="link" x-show="!editBudget" :disabled="ro" x-text="p.budget ? $money(p.budget) + ' budget' : 'no budget yet'"
               @click="editBudget = true; $nextTick(() => $refs.budget.focus())"></button>
@@ -29,7 +30,7 @@ export const person = {
               aria-label="Budget in pounds" @keydown.enter.prevent="$el.blur()" @blur="saveBudget">
           </p>
         </div>
-        <button class="btn ghost small" x-show="!editName" @click="$store.app.print(p.id)">Print</button>
+        <button class="btn ghost small" x-show="!editName && !$store.app.kid" @click="$store.app.print(p.id)">Print</button>
       </div>
 
       <div class="seg" role="tablist">
@@ -77,6 +78,11 @@ export const person = {
       <div x-show="tab === 'notes'" class="card stack">
         <label x-show="p.kind === 'child'">Age band<select @change="savePerson({ age_band: $event.target.value })">
           <template x-for="a in ageBands"><option :value="a" x-text="a" :selected="a === p.age_band"></option></template></select></label>
+        <label class="switch-row" x-show="p.kind === 'child'">
+          <input type="checkbox" role="switch" :checked="p.own_lists" @change="savePerson({ own_lists: $el.checked })">
+          <span><b>Own gift lists</b>
+            <small>Let <span x-text="p.name"></span> add people and gifts that only they can see. Grown-ups can't see these lists.</small></span>
+        </label>
         <p class="note" x-show="p.kind === 'child'">For privacy we only keep a child's first name, age band and wishes.</p>
         <template x-if="p.kind !== 'child'"><div class="stack">
           <label>Interests<textarea x-model="p.interests" @change="savePerson({ interests: p.interests })"></textarea></label>
@@ -84,7 +90,7 @@ export const person = {
           <label>Notes<textarea x-model="p.notes" @change="savePerson({ notes: p.notes })" placeholder="Sizes, favourite colours, things they already have..."></textarea></label>
         </div></template>
       </div>
-      <p class="note">Tap the name, avatar, group or budget above to change them.</p>
+      <p class="note" x-text="$store.app.kid ? 'Tap the name or picture above to change them.' : 'Tap the name, avatar, group or budget above to change them.'"></p>
       <button class="btn danger wide" @click="remove">Delete <span x-text="p.name"></span></button>
     </div></template>
 
@@ -186,7 +192,8 @@ export const person = {
       this.load();
     },
     async remove() {
-      if (!await this.$store.app.confirm(`Delete ${this.p.name}, their gifts, budgets and wishlist? This can't be undone.`)) return;
+      const what = this.$store.app.kid ? 'and their gifts' : 'their gifts, budgets and wishlist';
+      if (!await this.$store.app.confirm(`Delete ${this.p.name}, ${what}? This can't be undone.`)) return;
       await db.deletePerson(this.p.id);
       this.$store.app.toast(`${this.p.name} deleted`);
       location.hash = '#/people';

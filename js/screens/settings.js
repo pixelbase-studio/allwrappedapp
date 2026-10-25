@@ -94,7 +94,8 @@ export const settings = {
                     <span class="avatar" x-html="$avatar(c.avatar)"></span>
                     <span class="grow"><b x-text="c.name"></b>
                       <span class="meta"><span x-show="c.age_band" x-text="'Age ' + c.age_band"></span>
-                        <span x-text="devices(c.id) ? 'Signed in on ' + devices(c.id) + (devices(c.id) === 1 ? ' device' : ' devices') : 'Not signed in yet'"></span></span></span>
+                        <span x-text="devices(c.id) ? 'Signed in on ' + devices(c.id) + (devices(c.id) === 1 ? ' device' : ' devices') : 'Not signed in yet'"></span>
+                        <span x-show="c.own_lists">Own gift lists on</span></span></span>
                   </a></li>
                 </template>
               </ul>
@@ -162,6 +163,10 @@ export const settings = {
           <template x-for="a in ageBands"><option :value="a" x-text="a" :selected="a === child.age_band"></option></template></select></label>
         <p class="label">Avatar</p>
         ${avatarPicker('child')}
+        <label class="switch-row">
+          <input type="checkbox" role="switch" x-model="child.own_lists">
+          <span><b>Own gift lists</b><small>Let them add people and gifts that only they can see. You can change this later on their profile.</small></span>
+        </label>
         <p class="note">For privacy we only keep a child's first name, age band and wishes.</p>
         <p class="error" x-show="error" x-text="error" role="alert"></p>
         <div class="actions"><span class="grow"></span><button type="button" class="btn ghost" @click="sheet = false">Cancel</button><button class="btn primary">Add child</button></div>
@@ -223,7 +228,7 @@ export const settings = {
     },
 
     openChild() {
-      this.child = { name: '', age_band: AGE_BANDS[2], avatar: 'gingerbread' };
+      this.child = { name: '', age_band: AGE_BANDS[2], avatar: 'gingerbread', own_lists: false };
       this.error = ''; this.sheet = true;
       this.$nextTick(() => this.$refs.childName.focus());
     },

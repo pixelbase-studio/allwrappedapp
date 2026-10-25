@@ -35,9 +35,19 @@
   <footer class="foot" x-cloak x-show="$store.app.session">Wrapped with love by the elves for <span x-text="$store.app.session?.household.name"></span></footer>
 
   <nav class="tabs" aria-label="Main" x-cloak x-show="$store.app.tabs">
-    <a href="#/people" :aria-current="['people', 'person'].includes($store.app.route) && 'page'"><span aria-hidden="true">🎄</span>People</a>
-    <a href="#/budget" :aria-current="$store.app.route === 'budget' && 'page'"><span aria-hidden="true">💷</span>Budget</a>
-    <a href="#/settings" :aria-current="$store.app.route === 'settings' && 'page'"><span aria-hidden="true">⚙️</span>Settings</a>
+    <template x-if="!$store.app.kid">
+      <div>
+        <a href="#/people" :aria-current="['people', 'person'].includes($store.app.route) && 'page'"><span aria-hidden="true">🎄</span>People</a>
+        <a href="#/budget" :aria-current="$store.app.route === 'budget' && 'page'"><span aria-hidden="true">💷</span>Budget</a>
+        <a href="#/settings" :aria-current="$store.app.route === 'settings' && 'page'"><span aria-hidden="true">⚙️</span>Settings</a>
+      </div>
+    </template>
+    <template x-if="$store.app.kid">
+      <div>
+        <a href="#/wishes" :aria-current="$store.app.route === 'wishes' && 'page'"><span aria-hidden="true">⭐</span>My wishlist</a>
+        <a href="#/people" :aria-current="['people', 'person'].includes($store.app.route) && 'page'"><span aria-hidden="true">🎁</span>My gift lists</a>
+      </div>
+    </template>
   </nav>
 
   <div class="sheet-wrap top-layer" x-cloak x-show="$store.app.ask" @keydown.escape.window="$store.app.ask && $store.app.answer(false)">

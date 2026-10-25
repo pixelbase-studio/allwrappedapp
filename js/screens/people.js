@@ -14,10 +14,11 @@ export const avatarPicker = (target, after = '') => `
 export const people = {
   template: `
   <section class="pad" x-data="people">
+    <p class="note private" x-show="$store.app.kid">🔒 Only you can see these lists. Grown-ups can't peek!</p>
     <template x-if="loaded && !rows.length">
       <div class="empty">
         <div class="avatar xl" x-html="$avatar('elf')"></div>
-        <p>No people yet. The elves are waiting!</p>
+        <p x-text="$store.app.kid ? 'Who are you buying presents for? Add them here.' : 'No people yet. The elves are waiting!'"></p>
         <button class="btn primary" x-show="!$store.app.readonly" @click="openAdd">Add a person</button>
       </div>
     </template>
@@ -42,19 +43,21 @@ export const people = {
       <form class="sheet stack" role="dialog" aria-modal="true" aria-label="Add a person" @submit.prevent="save">
         <h2>Add a person</h2>
         <label>Name<input x-model="form.name" required x-ref="name"></label>
-        <div class="two">
-          <label>Group<select x-model="form.group">
-            <option value="">No group</option>
-            <template x-for="g in $store.app.groups" :key="g.id"><option :value="g.id" x-text="g.name" :selected="g.id === form.group"></option></template>
+        <template x-if="!$store.app.kid"><div class="stack">
+          <div class="two">
+            <label>Group<select x-model="form.group">
+              <option value="">No group</option>
+              <template x-for="g in $store.app.groups" :key="g.id"><option :value="g.id" x-text="g.name" :selected="g.id === form.group"></option></template>
+            </select></label>
+            <label>Budget (£)<input type="number" inputmode="decimal" min="0" step="0.01" x-model="form.budget"></label>
+          </div>
+          <label>They are<select x-model="form.kind">
+            <option value="adult">A grown-up</option><option value="child">A child</option><option value="other">Someone else</option>
           </select></label>
-          <label>Budget (£)<input type="number" inputmode="decimal" min="0" step="0.01" x-model="form.budget"></label>
-        </div>
-        <label>They are<select x-model="form.kind">
-          <option value="adult">A grown-up</option><option value="child">A child</option><option value="other">Someone else</option>
-        </select></label>
-        <label x-show="form.kind === 'child'">Age band<select x-model="form.age_band">
-          <template x-for="a in ageBands"><option :value="a" x-text="a"></option></template>
-        </select></label>
+          <label x-show="form.kind === 'child'">Age band<select x-model="form.age_band">
+            <template x-for="a in ageBands"><option :value="a" x-text="a"></option></template>
+          </select></label>
+        </div></template>
         <p class="label">Avatar</p>
         ${avatarPicker('form')}
         <p class="error" x-show="error" x-text="error" role="alert"></p>

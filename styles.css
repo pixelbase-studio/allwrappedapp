@@ -53,6 +53,7 @@ main, .years, .foot { max-width: 600px; margin: 0 auto; }
   position: fixed; inset: auto 0 0 0; z-index: 20; display: flex; justify-content: center;
   background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom);
 }
+.tabs > div { display: contents; }
 .tabs a {
   flex: 1; max-width: 200px; min-height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 2px; color: var(--muted); text-decoration: none; font-size: .8rem; font-weight: 700;
@@ -253,3 +254,20 @@ button.avatar { cursor: pointer; }
   #print td:nth-child(3) { text-transform: capitalize; }
   @page { margin: 15mm; }
 }
+
+/* Toggle switch (a styled checkbox with role="switch") */
+.switch-row { flex-direction: row; align-items: flex-start; gap: 12px; font-weight: 500; cursor: pointer; }
+.switch-row > span { display: flex; flex-direction: column; gap: 2px; }
+.switch-row small { color: var(--muted); font-size: .85rem; }
+.switch-row input {
+  appearance: none; flex: none; width: 52px; height: 30px; min-height: 0; padding: 0; margin-top: 2px;
+  border: 0; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .15s;
+}
+.switch-row input::after {
+  content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / .3); transition: transform .15s;
+}
+.switch-row input:checked { background: var(--primary); }
+.switch-row input:checked::after { transform: translateX(22px); }
+.switch-row input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.note.private { text-align: center; margin-top: 0; }

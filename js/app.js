@@ -28,14 +28,19 @@ Alpine.store('app', {
   get current() { return this.seasons.find(s => !s.archived); },
   get readonly() { return !!this.season?.archived; },
   get groups() { return this.session?.household.groups ?? []; },
-  get tabs() { return !!this.session && this.session.role !== 'child'; },
+  get kid() { return this.session?.role === 'child'; },
+  // A child whose grown-ups switched on their own (private) people and gift lists.
+  get kidLists() { return this.kid && !!this.session.person?.own_lists; },
+  get tabs() { return !!this.session && (!this.kid || this.kidLists); },
 
   // Fresh data every time the app opens, refreshes or someone signs in.
   async load() {
     this.session = await db.getSession();
     document.documentElement.dataset.theme = this.session?.theme ?? 'santa';
-    this.seasons = this.session && this.session.role !== 'child' ? await db.listSeasons() : [];
-    if (!this.season) this.seasonId = this.current?.id ?? null;
+    const adult = this.session && !this.kid;
+    this.seasons = adult ? await db.listSeasons() : [];
+    if (adult) { if (!this.season) this.seasonId = this.current?.id ?? null; }
+    else this.seasonId = this.kidLists ? await db.currentSeason() : null;
   },
   async enter() { await this.load(); go(this.session.role === 'child' ? '#/wishes' : '#/people'); },
   async signOut() {
@@ -85,7 +90,8 @@ function render() {
   const asked = name;
   if (!routes[name]) name = 'people';
   if (!role) { if (!PUBLIC.includes(name)) name = 'signin'; }
-  else name = role === 'child' ? 'wishes' : PUBLIC.includes(name) || name === 'wishes' ? 'people' : name;
+  else if (role === 'child') name = ['wishes', ...(app.kidLists ? ['people', 'person'] : [])].includes(name) ? name : 'wishes';
+  else name = PUBLIC.includes(name) || name === 'wishes' ? 'people' : name;
   if (name !== asked) param = '';
   const hash = '#/' + name + (param ? '/' + param : '');
   if (location.hash !== hash) history.replaceState(null, '', hash);

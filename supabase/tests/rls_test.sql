@@ -7,6 +7,7 @@ insert into auth.users (id, email, is_anonymous) values
   ('00000000-0000-0000-0000-00000000000b', 'adult@test.local', false),
   ('00000000-0000-0000-0000-00000000000c', null, true),  -- a child's device (anonymous session)
   ('00000000-0000-0000-0000-00000000000f', null, true),  -- the same child's second device
+  ('00000000-0000-0000-0000-000000000010', null, true),  -- a second child's device
   ('00000000-0000-0000-0000-00000000000d', 'nobody@test.local', false),
   ('00000000-0000-0000-0000-00000000000e', 'stranger@test.local', false);
 insert into public.family_codes values ('RLSTESTCODE');
@@ -30,9 +31,10 @@ declare
   adult uuid := '00000000-0000-0000-0000-00000000000b';
   kid uuid := '00000000-0000-0000-0000-00000000000c';
   kid2 uuid := '00000000-0000-0000-0000-00000000000f';
+  kid3 uuid := '00000000-0000-0000-0000-000000000010';
   nobody uuid := '00000000-0000-0000-0000-00000000000d';
   stranger uuid := '00000000-0000-0000-0000-00000000000e';
-  season uuid; new_season uuid; kid_p uuid; gran_p uuid; join_c text; kids_c text; old_kids_c text; n int;
+  season uuid; new_season uuid; kid_p uuid; kidb_p uuid; mum_p uuid; gran_p uuid; join_c text; kids_c text; old_kids_c text; n int;
 begin
   -- Starting a family needs the creation code and an email account.
   perform pg_temp.act(nobody);
@@ -89,6 +91,43 @@ begin
   perform pg_temp.act(kid2);
   perform pg_temp.check((select count(*) from public.wishes) = 1, 'second device sees the same wishlist');
 
+  -- Own gift lists: off by default, switched on per child by a grown-up, invisible to everyone else.
+  perform pg_temp.act(kid);
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.people (name, owner_id) values ('Mum', %L)$q$, kid_p)), 'own lists are off by default');
+  update public.people set own_lists = true where id = kid_p;
+  get diagnostics n = row_count;
+  perform pg_temp.check(n = 0, 'a child cannot switch on their own lists');
+  perform pg_temp.act(lead);
+  update public.people set own_lists = true where id = kid_p;
+  insert into public.people (name, kind, own_lists) values ('KidB', 'child', true) returning id into kidb_p;
+  perform pg_temp.act(kid3);
+  perform public.kid_sign_in(kids_c, 'KidB');
+  perform pg_temp.act(kid);
+  insert into public.people (name, owner_id) values ('Mum', kid_p) returning id into mum_p;
+  insert into public.gifts (person_id, season_id, name, price, status) values (mum_p, public.current_season(), 'Mug', 6, 'bought');
+  perform pg_temp.check((select count(*) from public.people) = 2, 'child sees themselves and their own list');
+  perform pg_temp.check((select count(*) from public.gifts) = 1, 'child sees the gifts on their own list');
+  perform pg_temp.check((select count(*) from public.seasons) = 0, 'child still cannot read seasons or budgets');
+  perform pg_temp.check(pg_temp.fails($q$insert into public.people (name) values ('X')$q$), 'child cannot add to the family list');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.people (name, owner_id) values ('X', %L)$q$, kidb_p)), 'child cannot add to another child''s list');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.people (name, kind, owner_id) values ('X', 'child', %L)$q$, kid_p)), 'a child''s list cannot hold child profiles');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.gifts (person_id, season_id, name) values (%L, %L, 'x')$q$, gran_p, season)), 'child still cannot add family gifts');
+  perform pg_temp.act(kid3);
+  perform pg_temp.check((select count(*) from public.people) = 1, 'other children cannot see the list');
+  perform pg_temp.check((select count(*) from public.gifts) = 0, 'other children cannot see its gifts');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.gifts (person_id, season_id, name) values (%L, %L, 'x')$q$, mum_p, season)), 'other children cannot add to it');
+  perform pg_temp.act(lead);
+  perform pg_temp.check((select count(*) from public.people where id = mum_p) = 0, 'grown-ups cannot see a child''s list');
+  perform pg_temp.check((select count(*) from public.gifts where person_id = mum_p) = 0, 'grown-ups cannot see its gifts');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.gifts (person_id, season_id, name) values (%L, %L, 'x')$q$, mum_p, season)), 'grown-ups cannot add to it');
+  delete from public.people where id = mum_p;
+  get diagnostics n = row_count;
+  perform pg_temp.check(n = 0, 'grown-ups cannot delete from it');
+  update public.people set own_lists = false where id = kid_p;
+  perform pg_temp.act(kid);
+  perform pg_temp.check((select count(*) from public.gifts) = 0 and (select count(*) from public.people) = 1, 'switching off hides the lists');
+  perform pg_temp.check(pg_temp.fails(format($q$insert into public.people (name, owner_id) values ('Dad', %L)$q$, kid_p)), 'switching off stops new entries');
+
   -- Strangers in another household see nothing of this one.
   perform pg_temp.act(stranger);
   perform public.create_household('RLSTESTCODE', 'Other House');
@@ -100,7 +139,7 @@ begin
   perform pg_temp.act(adult);
   perform pg_temp.check((select count(*) from public.gifts) = 2, 'adult sees all gifts');
   perform pg_temp.check((select count(*) from public.wishes) = 1, 'adult reads the wishlist');
-  perform pg_temp.check((select count(*) from public.members) = 4, 'adult sees all members, including both child devices');
+  perform pg_temp.check((select count(*) from public.members) = 5, 'adult sees all members, including every child device');
   perform pg_temp.check(pg_temp.fails(format($q$insert into public.wishes (person_id, name) values (%L, 'x')$q$, kid_p)), 'adult cannot write wishes');
   update public.wishes set name = 'hacked';
   perform pg_temp.check((select name from public.wishes) = 'Puppy', 'adult update of wishes changes nothing');
@@ -124,9 +163,10 @@ begin
   -- Deleting a child removes their gifts, wishes and device sign-ins.
   delete from public.people where id = kid_p;
   perform pg_temp.check((select count(*) from public.gifts where person_id = kid_p) = 0, 'gifts removed with person');
-  perform pg_temp.check((select count(*) from public.members where role = 'child') = 0, 'child devices signed out when the child is deleted');
-
+  perform pg_temp.check((select count(*) from public.members where person_id = kid_p) = 0, 'child devices signed out when the child is deleted');
   execute 'reset role';
+  perform pg_temp.check((select count(*) from public.people where id = mum_p) = 0, 'a child''s own list goes when the child is deleted');
+  perform pg_temp.check((select count(*) from public.gifts where person_id = mum_p) = 0, 'and so do its gifts');
 end $$;
 
 -- Signed-out visitors can only check a creation code or a join code.

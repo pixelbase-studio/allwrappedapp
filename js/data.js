@@ -22,7 +22,7 @@ function ok({ data, error }) {
   fail(m); // our database functions already raise friendly messages
 }
 
-let me = null; // { userId, householdId } of the signed-in member
+let me = null; // { userId, householdId, role, personId } of the signed-in member
 
 // Links are clicked by other family members, so only ever store web addresses.
 const cleanUrl = u => ((u = (u ?? '').trim()) && !/^https?:\/\//i.test(u) ? 'https://' + u : u);
@@ -53,7 +53,7 @@ export async function getSession() {
   const userId = session.user.id;
   const m = ok(await sb.from('members').select('role, theme, email, person_id, household:households(id, name, groups)').eq('user_id', userId).maybeSingle());
   if (!m) return (me = null); // signed in, but never finished joining a household
-  me = { userId, householdId: m.household.id };
+  me = { userId, householdId: m.household.id, role: m.role, personId: m.person_id };
   const person = m.person_id && ok(await sb.from('people').select('*').eq('id', m.person_id).single());
   return { email: m.email, theme: m.theme, role: m.role, household: m.household, person: person || null };
 }
@@ -123,6 +123,11 @@ export async function updateSeason(id, { overall_budget }) {
   ok(await sb.from('seasons').update({ overall_budget: num(overall_budget) }).eq('id', id));
 }
 
+// This Christmas's season id, for children's own lists (children cannot read seasons).
+export async function currentSeason() {
+  return ok(await sb.rpc('current_season'));
+}
+
 // Archives the current year and starts the next one with the same people and budgets.
 export async function startNewYear() {
   return ok(await sb.rpc('start_new_year'));
@@ -130,18 +135,23 @@ export async function startNewYear() {
 
 // ---- People and budgets ----
 
+// Grown-ups get the family list; a child with their own lists gets just the people on them.
 export async function listPeople() {
-  return ok(await sb.from('people').select('*').order('name'));
+  const rows = ok(await sb.from('people').select('*').order('name'));
+  return me?.role === 'child' ? rows.filter(p => p.id !== me.personId) : rows;
 }
 
-export async function addPerson({ name, kind, group, avatar, age_band }, seasonId, budget) {
+export async function addPerson({ name, kind, group, avatar, age_band, own_lists = false }, seasonId, budget) {
   if (!name.trim()) fail('Every person needs a name.');
-  const p = ok(await sb.from('people').insert({ name: name.trim(), kind, group, avatar, age_band: kind === 'child' ? age_band : null }).select().single());
+  const row = me.role === 'child'
+    ? { name: name.trim(), avatar, kind: 'other', owner_id: me.personId } // on the child's own private list
+    : { name: name.trim(), kind, group, avatar, age_band: kind === 'child' ? age_band : null, own_lists: kind === 'child' && own_lists };
+  const p = ok(await sb.from('people').insert(row).select().single());
   if (num(budget) != null) await setBudget(p.id, seasonId, budget);
   return p;
 }
 
-const PERSON_FIELDS = ['name', 'group', 'avatar', 'age_band', 'interests', 'hobbies', 'notes'];
+const PERSON_FIELDS = ['name', 'group', 'avatar', 'age_band', 'interests', 'hobbies', 'notes', 'own_lists'];
 
 export async function updatePerson(id, patch) {
   const row = Object.fromEntries(Object.entries(patch).filter(([k]) => PERSON_FIELDS.includes(k)));
