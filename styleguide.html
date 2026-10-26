@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en-GB" data-theme="santa">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>All Wrapped style guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Guide chrome only. Everything inside .stage is the app's real CSS. */
+    .sg-page { max-width: 1000px; margin: 0 auto; padding: 24px 16px 96px; }
+    @media (min-width: 1100px) { .sg-page { margin-left: max(16px, calc(50vw - 640px)); margin-right: 340px; } }
+    .sg-page > header { margin-bottom: 8px; }
+    .sg-page > header p { color: var(--muted); max-width: 60ch; }
+    .sg-nav { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 12px 0 28px; font-size: var(--fs-small); font-weight: 700; }
+    .sg-sec { margin: 0 0 40px; scroll-margin-top: 16px; }
+    .sg-sec > h2 { font-size: var(--fs-head); margin-bottom: 4px; }
+    .sg-sec > .sg-note { color: var(--muted); font-size: var(--fs-small); margin: 0 0 12px; }
+    .stage { background: var(--bg); border: 1px dashed var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+    .stage.col { flex-direction: column; align-items: stretch; }
+    .frame { width: 375px; max-width: 100%; }
+    .frame > .cap, .cap { display: block; font: 700 .75rem/1.2 system-ui, sans-serif; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; width: 100%; }
+    .sw { border-radius: 12px; overflow: hidden; border: 1px solid var(--line); background: var(--surface); font-size: var(--fs-small); }
+    .sw i { display: block; height: 52px; }
+    .sw span { display: block; padding: 6px 8px; font-weight: 700; }
+    .sw small { display: block; color: var(--muted); font-weight: 500; }
+    .sg-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .sg-type > * { margin: 0 0 10px; }
+    /* Fixed-position pieces become ordinary blocks so they can be shown in place. */
+    .stage .tabs { position: static; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; width: 375px; max-width: 100%; }
+    .stage .fab { position: static; }
+    .stage .toast { position: static; transform: none; display: block; }
+    .stage .top { position: static; width: 375px; max-width: 100%; border-radius: var(--radius); }
+    .stage .sheet { border-radius: 22px; box-shadow: var(--shadow); animation: none; }
+    .stage .list { width: 100%; }
+
+    /* Token panel */
+    .sg-panel { position: fixed; top: 0; right: 0; bottom: 0; width: 320px; z-index: 100; overflow: auto; padding: 16px; background: var(--surface); color: var(--ink); border-left: 1px solid var(--line); font-size: var(--fs-small); }
+    .sg-panel h2 { font-size: var(--fs-title); margin: 18px 0 8px; }
+    .sg-panel h2:first-of-type { margin-top: 0; }
+    .sg-panel .ctl { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 8px; margin-bottom: 6px; font-weight: 600; }
+    .sg-panel .ctl code { font-weight: 400; color: var(--muted); font-size: .75rem; }
+    .sg-panel input[type="color"] { width: 44px; height: 32px; min-height: 0; padding: 0; border-radius: 8px; cursor: pointer; }
+    .sg-panel input[type="range"] { grid-column: 1 / -1; min-height: 0; padding: 0; accent-color: var(--primary); }
+    .sg-panel select { min-height: 40px; }
+    .sg-panel .actions { margin-top: 12px; }
+    .ratio { display: grid; grid-template-columns: 1fr auto auto; gap: 6px; align-items: center; padding: 3px 0; }
+    .ratio b.pass { color: var(--st-bought); } .ratio b.fail { color: var(--danger); }
+    .sg-out { width: 100%; min-height: 120px; font: .75rem/1.4 ui-monospace, Menlo, monospace; }
+    @media (max-width: 1099px) {
+      .sg-panel { position: static; width: auto; border: 1px solid var(--line); border-radius: var(--radius); margin: 0 16px 24px; }
+    }
+  </style>
+</head>
+<body class="sg">
+  <aside class="sg-panel" id="panel" aria-label="Design tokens">
+    <h2>Theme</h2>
+    <label>Base theme
+      <select id="theme"><option value="santa">Santa</option><option value="elf">Elf</option><option value="snowman">Snowman</option></select>
+    </label>
+    <h2>Colours</h2><div id="colours"></div>
+    <h2>Status colours</h2><div id="status"></div>
+    <h2>Shape and type</h2><div id="sizes"></div>
+    <h2>Contrast</h2><div id="ratios"></div>
+    <h2>Save</h2>
+    <div class="actions">
+      <button class="btn small primary" id="copy">Copy changed CSS</button>
+      <button class="btn small ghost" id="reset">Reset</button>
+    </div>
+    <p class="note" id="copied" role="status"></p>
+    <textarea class="sg-out" id="out" readonly aria-label="Changed CSS"></textarea>
+  </aside>
+
+  <div class="sg-page">
+    <header>
+      <h1>All Wrapped style guide</h1>
+      <p>Every component below uses the app's real <code>styles.css</code>. Change a token in the panel and everything updates. When you like it, copy the changed CSS and tell me, and I'll apply it to the app.</p>
+    </header>
+    <nav class="sg-nav" aria-label="Sections">
+      <a href="#colour">Colour</a><a href="#type">Type</a><a href="#buttons">Buttons</a><a href="#forms">Forms</a><a href="#people">People</a><a href="#gifts">Gifts</a><a href="#nav">Navigation</a><a href="#overlays">Sheets</a><a href="#heroes">Heroes</a><a href="#budget">Budget</a><a href="#avatars">Avatars</a>
+    </nav>
+
+    <section class="sg-sec" id="colour"><h2>Colour</h2><p class="sg-note">The tokens every screen draws from.</p>
+      <div class="stage"><div class="swatches" id="swatches"></div></div></section>
+
+    <section class="sg-sec" id="type"><h2>Type</h2><p class="sg-note">Fraunces for headings, system font for body. Four sizes only.</p>
+      <div class="stage col sg-type">
+        <h1>Headline 1.5rem: Ho ho ho!</h1>
+        <h2>Title 1.125rem: Who's here?</h2>
+        <p>Body 1rem. Your family's Christmas gift lists, all wrapped up.</p>
+        <p class="note">Small 0.875rem for meta and notes.</p>
+        <p class="sleeps" style="font-size:4rem">59</p>
+        <p class="sleeps-label">sleeps until Christmas</p>
+      </div></section>
+
+    <section class="sg-sec" id="buttons"><h2>Buttons</h2><p class="sg-note">Default, primary, ghost, danger, small, disabled, link, icon, and the add button.</p>
+      <div class="stage col">
+        <div class="sg-row"><button class="btn">Default</button><button class="btn primary">Primary</button><button class="btn ghost">Ghost</button><button class="btn danger">Danger</button><button class="btn primary" disabled>Disabled</button></div>
+        <div class="sg-row"><button class="btn small">Small</button><button class="btn small primary">Small primary</button><button class="link">Text link</button><button class="icon" aria-label="Icon button">✎</button><button class="icon danger" aria-label="Delete">✕</button><button class="fab" aria-label="Add">+</button></div>
+      </div></section>
+
+    <section class="sg-sec" id="forms"><h2>Forms</h2><p class="sg-note">Inputs, select, textarea, switch and errors.</p>
+      <div class="stage"><div class="frame"><form class="stack card" onsubmit="return false">
+        <label>Name<input value="Gran"></label>
+        <div class="two"><label>Group<select><option>Family</option></select></label><label>Budget (£)<input type="number" value="60"></label></div>
+        <label>Notes<textarea placeholder="Sizes, favourite colours..."></textarea></label>
+        <label class="switch-row"><input type="checkbox" role="switch" checked><span><b>Own gift lists</b><small>Let them add people and gifts only they can see.</small></span></label>
+        <label class="switch-row"><input type="checkbox" role="switch"><span><b>Off state</b><small>Check the toggle track contrast.</small></span></label>
+        <label>Join code<input class="code-input" value="AB12CD"></label>
+        <p class="error" role="alert">That code isn't right. Check it and try again.</p>
+        <p class="field-error">Please enter a name.</p>
+      </form></div></div></section>
+
+    <section class="sg-sec" id="people"><h2>People</h2><p class="sg-note">Person rows with presents, progress and budget states, plus the empty state.</p>
+      <div class="stage">
+        <div class="frame"><span class="cap">Rows</span><ul class="list">
+          <li><a class="row" href="#people"><span class="avatar" data-avatar="santa"></span><span class="grow"><b>Mum</b><span class="meta"><span class="tag">Family</span><span class="presents" data-presents="3,5"></span></span><span class="bar"><i style="width:70%"></i></span></span><span class="amount">£84 of £120</span></a></li>
+          <li><a class="row" href="#people"><span class="avatar" data-avatar="elf"></span><span class="grow"><b>Dad (over budget)</b><span class="meta"><span class="tag">Family</span><span class="presents" data-presents="4,4"></span></span><span class="bar"><i class="over" style="width:100%"></i></span></span><span class="amount">£96 of £80</span></a></li>
+          <li><a class="row" href="#people"><span class="avatar" data-avatar="gingerbread"></span><span class="grow"><b>Evie</b><span class="meta"><span class="tag">Kids</span><span class="presents" data-presents="0,0"></span></span></span><span class="amount">£0 spent</span></a></li>
+        </ul></div>
+        <div class="frame"><span class="cap">Empty state</span><div class="empty card"><div class="avatar xl" data-avatar="elf"></div><p>No people yet. The elves are waiting!</p><button class="btn primary">Add a person</button></div></div>
+      </div></section>
+
+    <section class="sg-sec" id="gifts"><h2>Gifts</h2><p class="sg-note">Gift rows, every status chip, and the wrapped ribbon.</p>
+      <div class="stage">
+        <div class="frame"><span class="cap">Rows</span><ul class="list">
+          <li class="row"><span class="grow"><b>Wool socks</b><span class="meta"><a href="#gifts">Shop link</a><span>Size 8-11</span></span></span><span class="amount">£12.00</span><button class="chip st-idea">idea</button></li>
+          <li class="row"><span class="grow"><b>Gardening gloves</b><span class="meta"><span>Green, medium</span></span></span><span class="amount">£18.00</span><button class="chip st-to-buy">to buy</button></li>
+          <li class="row wrapped"><span class="bow" data-icon="bow"></span><span class="grow"><b>Cookbook</b></span><span class="amount">£25.00</span><button class="chip st-wrapped">wrapped</button></li>
+        </ul></div>
+        <div class="frame"><span class="cap">Status chips and tabs</span>
+          <div class="sg-row" style="margin-bottom:12px"><button class="chip st-idea">idea</button><button class="chip st-to-buy">to buy</button><button class="chip st-bought">bought</button><button class="chip st-received">received</button><button class="chip st-wrapped">wrapped</button></div>
+          <div class="seg" role="tablist"><button role="tab" aria-selected="true">Gifts</button><button role="tab" aria-selected="false">Wishlist</button><button role="tab" aria-selected="false">Notes</button></div>
+          <p class="note">Status picker options:</p>
+          <div class="stack"><button class="status-opt on"><span class="dot st-bought"></span>bought</button><button class="status-opt"><span class="dot st-received"></span>received</button></div>
+        </div>
+      </div></section>
+
+    <section class="sg-sec" id="nav"><h2>Navigation</h2><p class="sg-note">Header with countdown, and the tab bar for grown-ups and for kids.</p>
+      <div class="stage col">
+        <header class="top"><span class="brand"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</span><p class="countdown"><b>59</b> <span>sleeps to go</span></p></header>
+        <nav class="tabs"><div><a href="#nav" aria-current="page"><span data-icon="tree"></span>People</a><a href="#nav"><span data-icon="pound"></span>Budget</a><a href="#nav"><span data-icon="gear"></span>Settings</a></div></nav>
+        <nav class="tabs"><div><a href="#nav" aria-current="page"><span data-icon="star"></span>My wishlist</a><a href="#nav"><span data-icon="gift"></span>My gift lists</a></div></nav>
+      </div></section>
+
+    <section class="sg-sec" id="overlays"><h2>Sheets and toast</h2><p class="sg-note">Bottom sheet and confirm shown in place, and the toast.</p>
+      <div class="stage">
+        <div class="frame"><div class="sheet stack"><h2>Add a gift</h2><label>Gift<input value="Cookbook"></label><label>Price (£)<input type="number" value="25"></label><div class="actions"><button class="btn ghost">Cancel</button><button class="btn primary">Save</button></div></div></div>
+        <div class="frame"><div class="sheet stack"><h2>Are you sure?</h2><p>Delete Gran's gift list for this year?</p><div class="actions"><span class="grow"></span><button class="btn ghost">Cancel</button><button class="btn primary">Yes</button></div></div><p style="margin-top:16px"><span class="toast">Mum added. Ho ho ho!</span></p></div>
+      </div></section>
+
+    <section class="sg-sec" id="heroes"><h2>Heroes and doors</h2><p class="sg-note">The sign-in doors and the kid countdown moment.</p>
+      <div class="stage">
+        <div class="frame"><div class="hero"><div class="avatar xl" data-avatar="santa"></div><h1>Ho ho ho!</h1><p>Who's here?</p></div>
+          <div class="doors"><button class="door"><span data-icon="person"></span><b>I've got an account</b></button><button class="door"><span data-icon="home"></span><b>Start a new family</b></button><button class="door"><span data-icon="gift"></span><b>Join my family</b></button><button class="door kid-door"><span data-icon="star"></span><b>I'm a kid</b></button></div></div>
+        <div class="frame"><div class="countdown-hero"><div class="avatar xl" data-avatar="reindeer"></div><p class="sleeps">59</p><p class="sleeps-label">sleeps until Christmas</p><p class="hi">Hi Evie! What would you like?</p></div>
+          <div class="kid-picker"><button class="kid-pick"><span class="avatar xl" data-avatar="gingerbread"></span><b>Evie</b></button><button class="kid-pick"><span class="avatar xl" data-avatar="penguin"></span><b>Sam</b></button></div></div>
+      </div></section>
+
+    <section class="sg-sec" id="budget"><h2>Budget</h2><p class="sg-note">Cards, big numbers, progress bars and the pie.</p>
+      <div class="stage">
+        <div class="frame"><div class="card"><h2>Overall budget</h2><p class="big">£220 <small>spent of £350</small></p><span class="bar lg"><i style="width:63%"></i></span><p class="meta">£130 left</p><p class="note">Counts gifts that are bought, received or wrapped.</p></div></div>
+        <div class="frame"><div class="card"><h2>Spend by person</h2><div class="pie-wrap"><div class="pie" style="background:conic-gradient(var(--primary) 0 45%, var(--st-bought) 45% 75%, var(--accent) 75% 100%)"></div><ul class="legend"><li><i style="background:var(--primary)"></i>Mum <b>£99</b></li><li><i style="background:var(--st-bought)"></i>Dad <b>£66</b></li><li><i style="background:var(--accent)"></i>Nana <b>£55</b></li></ul></div></div></div>
+      </div></section>
+
+    <section class="sg-sec" id="avatars"><h2>Avatars</h2><p class="sg-note">The current SVG set. This is where the new artwork will slot in.</p>
+      <div class="stage"><div class="avatar-pick" id="avatar-pick" style="width:100%;max-width:520px"></div></div></section>
+
+    <p class="note">Some values are still hard-coded in <code>styles.css</code> (row radius 14px, input radius 12px, sheet radius 22px), so the radius slider moves cards and doors but not every shape. Those are the next tokens to add.</p>
+  </div>
+
+  <script type="module">
+    import { AVATARS } from './js/avatars.js';
+    import { icon } from './js/icons.js';
+
+    const root = document.documentElement;
+    const $ = s => document.querySelector(s);
+    const COLOURS = [['--bg','Page background'],['--surface','Cards'],['--ink','Text'],['--muted','Muted text'],['--line','Borders and tracks'],['--soft','Soft tint'],['--primary','Primary'],['--primary-ink','Text on primary'],['--head','Header'],['--head-ink','Text on header'],['--accent','Accent (gold)'],['--danger','Danger']];
+    const STATUS = [['--st-idea','Idea'],['--st-to-buy','To buy'],['--st-bought','Bought'],['--st-received','Received'],['--st-wrapped','Wrapped']];
+    const SIZES = [['--radius','Card radius','px',0,32,1],['--fs-head','Headline size','rem',1.25,2.75,.05],['--fs-title','Title size','rem',1,1.6,.025],['--fs-body','Body size','rem',.875,1.25,.025],['--fs-small','Small size','rem',.75,1.1,.025]];
+    const ALL = [...COLOURS, ...STATUS, ...SIZES].map(c => c[0]);
+    const KEY = 'sg-tokens-v1';
+    let overrides = {}, base = {};
+
+    // Static fills: avatars, icons, presents row.
+    document.querySelectorAll('[data-avatar]').forEach(el => (el.innerHTML = AVATARS[el.dataset.avatar] || ''));
+    document.querySelectorAll('[data-icon]').forEach(el => (el.innerHTML = icon(el.dataset.icon)));
+    document.querySelectorAll('[data-presents]').forEach(el => {
+      const [ready, count] = el.dataset.presents.split(',').map(Number);
+      el.setAttribute('role', 'img');
+      el.setAttribute('aria-label', count ? `${ready} of ${count} gifts bought` : 'No gifts yet');
+      el.innerHTML = count ? Array.from({ length: count }, (_, i) => `<i class="${i < ready ? 'ready' : ''}">${icon('gift')}</i>`).join('') : '<span>No gifts yet</span>';
+    });
+    $('#avatar-pick').innerHTML = Object.keys(AVATARS).map((k, i) => `<button type="button" class="avatar${i === 0 ? ' on' : ''}" aria-label="${k}">${AVATARS[k]}</button>`).join('');
+
+    // Helpers
+    const hex = v => { v = v.trim(); return /^#[0-9a-f]{3}$/i.test(v) ? '#' + [...v.slice(1)].map(c => c + c).join('') : v; };
+    const lum = h => { const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(c => (c <= .03928 ? c / 12.92 : ((c + .055) / 1.055) ** 2.4)); return .2126 * r + .7152 * g + .0722 * b; };
+    const ratio = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + .05) / (y + .05); };
+    const read = v => getComputedStyle(root).getPropertyValue(v).trim();
+    const snapshot = () => Object.fromEntries(ALL.map(v => [v, read(v)]));
+
+    // Build the panel once
+    $('#colours').innerHTML = COLOURS.map(([v, l]) => `<label class="ctl">${l}<input type="color" data-v="${v}" aria-label="${l}"><code>${v}</code></label>`).join('');
+    $('#status').innerHTML = STATUS.map(([v, l]) => `<label class="ctl">${l}<input type="color" data-v="${v}" aria-label="${l}"><code>${v}</code></label>`).join('');
+    $('#sizes').innerHTML = SIZES.map(([v, l, u, min, max, step]) => `<label class="ctl">${l}<output data-o="${v}"></output><input type="range" data-v="${v}" data-u="${u}" min="${min}" max="${max}" step="${step}"></label>`).join('');
+
+    const swatches = () => ($('#swatches').innerHTML = [...COLOURS, ...STATUS].map(([v, l]) => `<div class="sw"><i style="background:var(${v})"></i><span>${l}<small>${v} ${hex(read(v)) }</small></span></div>`).join(''));
+
+    function syncControls() {
+      document.querySelectorAll('[data-v]').forEach(el => {
+        const raw = read(el.dataset.v);
+        if (el.type === 'color') el.value = hex(raw);
+        else { el.value = parseFloat(raw); $(`[data-o="${el.dataset.v}"]`).textContent = parseFloat(raw) + el.dataset.u; }
+      });
+      swatches(); contrast(); output();
+    }
+
+    function contrast() {
+      const c = v => hex(read(v));
+      const pairs = [['Text on page', '--ink', '--bg', 4.5], ['Muted on page', '--muted', '--bg', 4.5], ['Muted on tint', '--muted', '--soft', 4.5], ['On primary', '--primary-ink', '--primary', 4.5], ['Primary on page', '--primary', '--bg', 4.5], ['On header', '--head-ink', '--head', 4.5], ['Borders on card', '--line', '--surface', 3], ['Gold on page', '--accent', '--bg', 3], ...STATUS.map(([v, l]) => [`Chip: ${l}`, null, v, 4.5])];
+      $('#ratios').innerHTML = pairs.map(([l, fg, bg, min]) => { const r = ratio(fg ? c(fg) : '#ffffff', c(bg)); return `<div class="ratio"><span>${l}</span><span>${r.toFixed(2)}:1</span><b class="${r >= min ? 'pass' : 'fail'}">${r >= min ? 'Pass' : 'Fail'} ${min}</b></div>`; }).join('');
+    }
+
+    function output() {
+      const keys = Object.keys(overrides);
+      $('#out').value = keys.length ? `:root, [data-theme="${root.dataset.theme}"] {\n${keys.map(k => `  ${k}: ${overrides[k]};`).join('\n')}\n}` : '/* No changes yet. */';
+    }
+
+    function setTheme(name, keep) {
+      for (const v of ALL) root.style.removeProperty(v);
+      root.dataset.theme = name; $('#theme').value = name;
+      base = snapshot();
+      overrides = keep || {};
+      for (const [v, val] of Object.entries(overrides)) root.style.setProperty(v, val);
+      syncControls();
+    }
+
+    const persist = () => { try { localStorage.setItem(KEY, JSON.stringify({ theme: root.dataset.theme, overrides })); } catch {} };
+
+    document.addEventListener('input', e => {
+      const el = e.target.closest('[data-v]'); if (!el) return;
+      const val = el.type === 'color' ? el.value : el.value + el.dataset.u;
+      root.style.setProperty(el.dataset.v, val);
+      if (hex(base[el.dataset.v] || '') === hex(val) || base[el.dataset.v] === val) delete overrides[el.dataset.v]; else overrides[el.dataset.v] = val;
+      if (el.type !== 'color') $(`[data-o="${el.dataset.v}"]`).textContent = parseFloat(val) + el.dataset.u;
+      swatches(); contrast(); output(); persist();
+    });
+    $('#theme').addEventListener('change', e => { setTheme(e.target.value); persist(); });
+    $('#reset').addEventListener('click', () => { setTheme(root.dataset.theme); persist(); });
+    $('#copy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText($('#out').value); $('#copied').textContent = 'Copied. Paste it to me and I will apply it.'; }
+      catch { $('#out').select(); $('#copied').textContent = 'Select and copy the text below.'; }
+    });
+
+    let saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch {}
+    setTheme(saved?.theme || 'santa', saved?.overrides);
+  </script>
+</body>
+</html>
