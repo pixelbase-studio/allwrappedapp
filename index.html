@@ -21,17 +21,16 @@
   <a class="skip" href="#screen" @click.prevent="document.getElementById('screen').focus()">Skip to content</a>
   <header class="top">
     <a class="brand" href="#/"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</a>
+    <div class="years" x-cloak x-show="['people', 'budget'].includes($store.app.route) && $store.app.seasons.length">
+      <label class="sr-only" for="year">Christmas year</label>
+      <select id="year" @change="$store.app.pickSeason($el)">
+        <template x-for="s in $store.app.seasons" :key="s.id">
+          <option :value="s.id" :selected="s.id === $store.app.seasonId" x-text="s.year + (s.archived ? ' (archived, read-only)' : '')"></option>
+        </template>
+        <option value="new">+ Add next year</option>
+      </select>
+    </div>
   </header>
-
-  <div class="years" x-cloak x-show="['people', 'budget'].includes($store.app.route) && $store.app.seasons.length">
-    <label class="sr-only" for="year">Christmas year</label>
-    <select id="year" @change="$store.app.pickSeason($el)">
-      <template x-for="s in $store.app.seasons" :key="s.id">
-        <option :value="s.id" :selected="s.id === $store.app.seasonId" x-text="'Christmas ' + s.year + (s.archived ? ' (archived, read-only)' : '')"></option>
-      </template>
-      <option value="new">+ Add next year</option>
-    </select>
-  </div>
 
   <main id="screen" tabindex="-1"></main>
 

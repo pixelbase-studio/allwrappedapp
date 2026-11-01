@@ -49,9 +49,9 @@ a { color: var(--primary); }
 }
 .brand { display: flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; font-weight: 700; font-size: var(--fs-title); min-height: 44px; }
 .brand img { border-radius: 8px; }
-main, .years { max-width: 600px; margin: 0 auto; }
+main { max-width: 600px; margin: 0 auto; }
 main { padding-bottom: 88px; } /* room for the + button below the last row */
-.years { padding: 12px 16px 0; }
+.years select { width: 8rem; min-height: 44px; padding: 0 36px 0 16px; border-radius: 999px; font-weight: 700; background-color: var(--surface); }
 .pad { padding: 16px; }
 
 .tabs {
@@ -169,7 +169,16 @@ button.avatar { cursor: pointer; }
 .row:has(> .avatar) { min-height: 84px; }
 .list.tight .row > .avatar { width: 48px; height: 48px; }
 .row.done { background: var(--soft); }
-.row.done .avatar { background: var(--surface); }
+.row.done .avatar, .row.done .tag { background: var(--surface); }
+
+/* Person card: name and group on top, gifts under, then progress and the amount. */
+.person-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.person-top b { font-size: 1.375rem; line-height: 1.2; }
+.person-top .tag { flex: none; }
+.person .presents, .person .no-gifts { display: flex; margin-top: 4px; font-size: var(--fs-small); color: var(--muted); }
+.person-money { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.person-money .bar { flex: 1; margin: 0; }
+.person-money .amount { margin-left: auto; }
 
 /* Person page */
 .person-head { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }

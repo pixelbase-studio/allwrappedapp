@@ -30,16 +30,17 @@ export const people = {
       <template x-for="p in rows" :key="p.id">
         <li><a class="row" :class="{ done: p.count > 0 && p.ready === p.count }" :href="'#/person/' + p.id">
           <span class="avatar" x-html="$avatar(p.avatar)"></span>
-          <span class="grow">
-            <b x-text="p.name"></b>
-            <span class="meta"><span class="tag" x-show="p.groupName" x-text="p.groupName"></span>
-              <span class="presents" role="img" :aria-label="p.count ? p.ready + ' of ' + p.count + ' gifts bought' : 'No gifts yet'">
-                <template x-for="i in Math.min(p.count, 8)"><i :class="{ ready: i <= p.ready }" x-html="$icon('gift')"></i></template>
-                <span x-show="p.count > 8" x-text="'+' + (p.count - 8)"></span>
-                <span x-show="!p.count">No gifts yet</span></span></span>
-            <span class="bar" x-show="p.budget"><i :class="{ over: p.spent > p.budget }" :style="'width:' + Math.min(100, p.spent / p.budget * 100) + '%'"></i></span>
+          <span class="grow person">
+            <span class="person-top"><b x-text="p.name"></b><span class="tag" x-show="p.groupName" x-text="p.groupName"></span></span>
+            <span class="presents" role="img" :aria-label="p.count ? p.ready + ' of ' + p.count + ' gifts bought' : 'No gifts yet'">
+              <template x-for="i in Math.min(p.count, 8)"><i :class="{ ready: i <= p.ready }" x-html="$icon('gift')"></i></template>
+              <span x-show="p.count > 8" x-text="'+' + (p.count - 8)"></span>
+              <span x-show="!p.count">No gifts yet</span></span>
+            <span class="person-money">
+              <span class="bar" x-show="p.budget"><i :class="{ over: p.spent > p.budget }" :style="'width:' + Math.min(100, p.spent / p.budget * 100) + '%'"></i></span>
+              <span class="amount" x-text="$money(p.spent) + (p.budget ? ' of ' + $money(p.budget) : ' spent')"></span>
+            </span>
           </span>
-          <span class="amount" x-text="$money(p.spent) + (p.budget ? ' of ' + $money(p.budget) : ' spent')"></span>
         </a></li>
       </template>
     </ul>
