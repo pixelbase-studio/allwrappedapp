@@ -20,13 +20,13 @@ export const person = {
         <button class="btn ghost small" @click="openEdit">Edit</button>
       </div>
 
-      <div class="seg" role="tablist">
-        <button role="tab" :aria-selected="tab === 'gifts'" @click="tab = 'gifts'">Gifts</button>
-        <button role="tab" x-show="p.kind === 'child'" :aria-selected="tab === 'wishlist'" @click="tab = 'wishlist'">Wishlist</button>
-        <button role="tab" :aria-selected="tab === 'notes'" @click="tab = 'notes'" x-text="p.kind === 'child' ? 'About' : 'Notes'"></button>
+      <div class="seg" role="tablist" aria-label="Sections" @keydown.arrow-right.prevent="moveTab(1)" @keydown.arrow-left.prevent="moveTab(-1)">
+        <button role="tab" id="tab-gifts" aria-controls="panel-gifts" :tabindex="tab === 'gifts' ? 0 : -1" :aria-selected="tab === 'gifts'" @click="tab = 'gifts'">Gifts</button>
+        <button role="tab" id="tab-wishlist" aria-controls="panel-wishlist" :tabindex="tab === 'wishlist' ? 0 : -1" x-show="p.kind === 'child'" :aria-selected="tab === 'wishlist'" @click="tab = 'wishlist'">Wishlist</button>
+        <button role="tab" id="tab-notes" aria-controls="panel-notes" :tabindex="tab === 'notes' ? 0 : -1" :aria-selected="tab === 'notes'" @click="tab = 'notes'" x-text="p.kind === 'child' ? 'About' : 'Notes'"></button>
       </div>
 
-      <div x-show="tab === 'gifts'">
+      <div x-show="tab === 'gifts'" role="tabpanel" id="panel-gifts" aria-labelledby="tab-gifts">
         <p class="note" x-show="ro">Christmas <span x-text="$store.app.season?.year"></span> is archived, so this list is read-only.</p>
         <template x-if="!gifts.length">
           <div class="empty"><p>No gifts yet. Santa's waiting!</p>
@@ -34,13 +34,13 @@ export const person = {
         </template>
         <ul class="list">
           <template x-for="g in gifts" :key="g.id">
-            <li class="row" :class="{ wrapped: g.status === 'wrapped' }" :role="ro ? null : 'button'" :tabindex="ro ? -1 : 0" @click="openGift(g)" @keydown.enter="openGift(g)">
+            <li class="row" :class="{ wrapped: g.status === 'wrapped' }">
               <span class="bow" x-show="g.status === 'wrapped'" x-html="$icon('bow')"></span>
-              <span class="grow"><b x-text="g.name"></b>
-                <span class="meta"><a x-show="g.url" :href="g.url" target="_blank" rel="noopener" @click.stop>Shop link</a>
+              <span class="grow"><button type="button" class="row-main" :disabled="ro" @click="openGift(g)"><b x-text="g.name"></b></button>
+                <span class="meta"><a x-show="g.url" :href="g.url" target="_blank" rel="noopener">Shop link</a>
                   <span x-text="g.note"></span></span></span>
               <span class="amount" x-text="$money(g.price)"></span>
-              <button class="chip" :class="'st-' + g.status.replace(' ', '-')" :disabled="ro" @click.stop="picking = g"
+              <button class="chip" :class="'st-' + g.status.replace(' ', '-')" :disabled="ro" @click="picking = g"
                 :aria-label="'Status: ' + g.status + '. Change status'" x-text="g.status"></button>
             </li>
           </template>
@@ -48,7 +48,7 @@ export const person = {
         <button class="fab" aria-label="Add a gift" x-show="!ro" @click="openGift()">+</button>
       </div>
 
-      <div x-show="tab === 'wishlist'">
+      <div x-show="tab === 'wishlist'" role="tabpanel" id="panel-wishlist" aria-labelledby="tab-wishlist">
         <p class="note"><span x-text="p.name"></span>'s own wishlist, for inspiration.</p>
         <template x-if="!wishes.length"><div class="empty"><p><span x-text="p.name"></span> hasn't written to Santa yet.</p></div></template>
         <ul class="list">
@@ -63,7 +63,7 @@ export const person = {
         </ul>
       </div>
 
-      <div x-show="tab === 'notes'" class="card stack">
+      <div x-show="tab === 'notes'" class="card stack" role="tabpanel" id="panel-notes" aria-labelledby="tab-notes">
         <label x-show="p.kind === 'child'">Age band<select @change="savePerson({ age_band: $event.target.value })">
           <template x-for="a in ageBands"><option :value="a" x-text="a" :selected="a === p.age_band"></option></template></select></label>
         <label class="switch-row" x-show="p.kind === 'child'">
@@ -149,6 +149,12 @@ export const person = {
       return [groupName, budget ? `${money(spent)} of ${money(budget)}` : `${money(spent)} spent`].filter(Boolean).join(' · ');
     },
     init() { this.load(); },
+    // Arrow keys move between the Gifts, Wishlist and Notes tabs.
+    moveTab(step) {
+      const tabs = ['gifts', ...(this.p.kind === 'child' ? ['wishlist'] : []), 'notes'];
+      this.tab = tabs[(tabs.indexOf(this.tab) + step + tabs.length) % tabs.length];
+      this.$nextTick(() => document.getElementById('tab-' + this.tab)?.focus());
+    },
     async load() {
       const id = this.$store.app.param, s = this.$store.app.seasonId;
       const [people, gifts, budgets] = await Promise.all([db.listPeople(), db.listGifts(s), db.listBudgets(s)]);

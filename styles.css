@@ -1,15 +1,15 @@
 /* All Wrapped. One stylesheet; a theme only swaps these colour variables. */
 
 :root, [data-theme="santa"] {
-  --bg: #fdf6f0; --surface: #fff; --ink: #3b1f1f; --muted: #7d5c58; --line: #efdcd4; --soft: #fbe9e6;
+  --bg: #fdf6f0; --surface: #fff; --ink: #3b1f1f; --muted: #7d5c58; --line: #efdcd4; --line-strong: #a08882; --soft: #fbe9e6;
   --primary: #c8102e; --primary-ink: #fff; --head: #a50d24; --head-ink: #fff; --accent: #f5c542;
 }
 [data-theme="elf"] {
-  --bg: #f1f7f0; --surface: #fff; --ink: #1d3324; --muted: #55705c; --line: #d5e6d6; --soft: #e1f0e2;
+  --bg: #f1f7f0; --surface: #fff; --ink: #1d3324; --muted: #55705c; --line: #d5e6d6; --line-strong: #6f9376; --soft: #e1f0e2;
   --primary: #1f7a3a; --primary-ink: #fff; --head: #17612d; --head-ink: #fff; --accent: #d4202c;
 }
 [data-theme="snowman"] {
-  --bg: #f3f6fa; --surface: #fff; --ink: #263241; --muted: #5f6f83; --line: #dbe3ec; --soft: #e8edf4;
+  --bg: #f3f6fa; --surface: #fff; --ink: #263241; --muted: #5f6f83; --line: #dbe3ec; --line-strong: #7b8ca3; --soft: #e8edf4;
   --primary: #50677f; --primary-ink: #fff; --head: #fff; --head-ink: #263241; --accent: #a9b6c6;
 }
 :root {
@@ -37,7 +37,7 @@ h1 { font-size: var(--fs-head); }
 h2 { font-size: var(--fs-title); }
 h3 { font-size: var(--fs-body); margin-top: 8px; }
 a { color: var(--primary); }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Shell */
@@ -71,7 +71,7 @@ main { padding-bottom: 88px; } /* room for the + button below the last row */
 label, .label { display: flex; flex-direction: column; gap: 6px; font-weight: 600; font-size: var(--fs-small); margin: 0; }
 input, select, textarea {
   font: inherit; font-size: var(--fs-body); color: var(--ink); background: var(--surface);
-  border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; min-height: 48px; width: 100%;
+  border: 1.5px solid var(--line-strong); border-radius: 12px; padding: 10px 12px; min-height: 48px; width: 100%;
 }
 textarea { min-height: 88px; resize: vertical; }
 input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; }
@@ -81,14 +81,14 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
   font: inherit; font-weight: 700; text-decoration: none; cursor: pointer;
 }
 .btn.primary { background: var(--primary); color: var(--primary-ink); }
-.btn.ghost { border-color: var(--line); color: var(--ink); background: transparent; }
+.btn.ghost { border-color: var(--line-strong); color: var(--ink); background: transparent; }
 .btn.danger { border-color: var(--danger); color: var(--danger); }
 .btn.small { min-height: 40px; padding: 0 14px; font-size: var(--fs-small); }
 .btn:disabled { opacity: .5; cursor: default; }
 .link { background: none; border: 0; padding: 4px 0; min-height: 40px; font: inherit; color: var(--primary); text-decoration: underline; cursor: pointer; }
 .link:disabled { color: inherit; text-decoration: none; cursor: default; }
 .icon {
-  width: 44px; height: 44px; flex: none; border-radius: 12px; border: 1px solid var(--line);
+  width: 44px; height: 44px; flex: none; border-radius: 12px; border: 1px solid var(--line-strong);
   background: var(--surface); color: var(--ink); font-size: 1.1rem; cursor: pointer;
 }
 .icon.danger { color: var(--danger); }
@@ -121,11 +121,24 @@ input:focus, select:focus, textarea:focus { border-color: var(--primary); outlin
 /* Lists and rows */
 .list { list-style: none; margin: 0; padding: 0; }
 .row {
-  display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 10px 12px; margin-bottom: 8px;
+  position: relative; display: flex; align-items: center; gap: 12px; min-height: 68px; padding: 10px 12px; margin-bottom: 8px;
   background: var(--surface); border-radius: 14px; box-shadow: var(--shadow); color: inherit; text-decoration: none;
 }
-li.row[role="button"], a.row { cursor: pointer; }
+a.row, .row:has(.row-main:not(:disabled)) { cursor: pointer; }
 .row b { display: block; overflow: hidden; text-overflow: ellipsis; }
+/* A row you can tap anywhere to open: the name is the real button and stretches over the row.
+   Links and chips sit above it, so nothing interactive is nested inside another control. */
+.row-main { display: block; min-width: 0; max-width: 100%; margin: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: left; cursor: inherit; }
+.row-main::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.row-main:disabled { cursor: default; }
+.row-main:focus-visible { outline: none; }
+.row:has(.row-main:focus-visible) { outline: 3px solid var(--ink); outline-offset: 2px; }
+.row .meta a, .row .chip { position: relative; z-index: 1; }
+
+/* Skip link: only visible when a keyboard user tabs to it */
+.skip { position: absolute; left: 8px; top: -100px; z-index: 200; padding: 12px 16px; border-radius: 12px; background: var(--surface); color: var(--ink); font-weight: 700; }
+.skip:focus { top: 8px; }
+#screen:focus { outline: none; }
 .list.tight .row { min-height: 56px; padding: 6px 8px; box-shadow: none; border: 1px solid var(--line); }
 .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--muted); font-size: var(--fs-small); margin: 2px 0 0; }
 .amount { display: flex; flex-direction: column; align-items: flex-end; font-weight: 700; white-space: nowrap; font-size: var(--fs-body); }
@@ -170,7 +183,7 @@ button.avatar { cursor: pointer; }
 .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; }
 .status-opt {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 14px;
-  border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink);
+  border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--surface); color: var(--ink);
   font: inherit; text-transform: capitalize; cursor: pointer;
 }
 .status-opt.on { border-color: var(--primary); background: var(--soft); font-weight: 700; }
@@ -229,7 +242,7 @@ button.avatar { cursor: pointer; }
 .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .theme {
   display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 80px; padding: 10px;
-  border: 2px solid var(--line); border-radius: 14px; background: var(--bg); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer;
+  border: 2px solid var(--line-strong); border-radius: 14px; background: var(--bg); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer;
 }
 .theme.on { border-color: var(--primary); }
 .swatch { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary) 50%, var(--accent) 50%); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--line); }
@@ -256,7 +269,7 @@ button.avatar { cursor: pointer; }
 .switch-row small { color: var(--muted); font-size: var(--fs-small); }
 .switch-row input {
   appearance: none; flex: none; width: 52px; height: 30px; min-height: 0; padding: 0; margin-top: 2px;
-  border: 0; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .15s;
+  border: 0; border-radius: 999px; background: var(--line-strong); position: relative; cursor: pointer; transition: background .15s;
 }
 .switch-row input::after {
   content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
@@ -264,7 +277,7 @@ button.avatar { cursor: pointer; }
 }
 .switch-row input:checked { background: var(--primary); }
 .switch-row input:checked::after { transform: translateX(22px); }
-.switch-row input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.switch-row input:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .note.private { text-align: center; margin-top: 0; }
 
 /* Kids' sign-in: tap your own face */
@@ -313,7 +326,7 @@ button.back { align-self: flex-start; background: none; border: 0; padding: 0; c
 .bow { color: var(--accent); flex: none; margin-left: -4px; }
 .bow .ico { width: 24px; height: 24px; }
 .presents { display: inline-flex; align-items: center; gap: 2px; }
-.presents i { display: grid; color: var(--line); }
+.presents i { display: grid; color: var(--line-strong); }
 .presents i.ready { color: var(--primary); }
 .presents .ico { width: 16px; height: 16px; }
 

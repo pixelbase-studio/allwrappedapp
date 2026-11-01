@@ -17,9 +17,9 @@ export const kid = {
     </template>
     <ul class="list">
       <template x-for="w in wishes" :key="w.id">
-        <li class="row" role="button" tabindex="0" @click="open(w)" @keydown.enter="open(w)">
-          <span class="grow"><b x-text="w.name"></b>
-            <span class="meta"><a x-show="w.url" :href="w.url" target="_blank" rel="noopener" @click.stop>Web link</a></span></span>
+        <li class="row">
+          <span class="grow"><button type="button" class="row-main" @click="open(w)"><b x-text="w.name"></b></button>
+            <span class="meta"><a x-show="w.url" :href="w.url" target="_blank" rel="noopener">Web link</a></span></span>
           <span class="amount" x-text="$money(w.price)"></span>
         </li>
       </template>
