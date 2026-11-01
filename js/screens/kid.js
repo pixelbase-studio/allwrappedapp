@@ -24,9 +24,9 @@ export const kid = {
         </li>
       </template>
     </ul>
-    <button class="fab" aria-label="Add a wish" @click="open()">+</button>
+    <button class="fab" @click="open()"><span aria-hidden="true">+</span> Add wish</button>
 
-    <div class="sheet-wrap" x-show="sheet" x-cloak @keydown.escape.window="sheet = false">
+    <div class="sheet-wrap" x-show="sheet" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="sheet = false">
       <div class="backdrop" @click="sheet = false"></div>
       <form class="sheet stack" role="dialog" aria-modal="true" :aria-label="form.id ? 'Edit wish' : 'New wish'" @submit.prevent="save">
         <h2 x-text="form.id ? 'Edit wish' : 'New wish'"></h2>
@@ -67,7 +67,7 @@ export const kid = {
       } catch (e) { this.error = e.message; }
     },
     async remove() {
-      if (!await this.$store.app.confirm(`Delete "${this.form.name}" from your wishlist?`)) return;
+      if (!await this.$store.app.confirm(`Delete "${this.form.name}" from your wishlist?`, 'Delete wish', 'Delete this wish?')) return;
       await db.deleteWish(this.form.id);
       this.sheet = false;
       this.load();

@@ -52,14 +52,14 @@
     </template>
   </nav>
 
-  <div class="sheet-wrap top-layer" x-cloak x-show="$store.app.ask" @keydown.escape.window="$store.app.ask && $store.app.answer(false)">
+  <div class="sheet-wrap top-layer" x-cloak x-show="$store.app.ask" x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="$store.app.ask && $store.app.answer(false)">
     <div class="backdrop" @click="$store.app.answer(false)"></div>
     <div class="sheet stack" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
-      <h2 id="confirm-title">Are you sure?</h2>
+      <h2 id="confirm-title" x-text="$store.app.ask?.title"></h2>
       <p x-text="$store.app.ask?.msg"></p>
       <div class="actions"><span class="grow"></span>
         <button class="btn ghost" @click="$store.app.answer(false)">Cancel</button>
-        <button class="btn primary" @click="$store.app.answer(true)">Yes</button>
+        <button class="btn primary" @click="$store.app.answer(true)" x-text="$store.app.ask?.yes"></button>
       </div>
     </div>
   </div>

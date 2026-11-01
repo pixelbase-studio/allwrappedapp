@@ -43,9 +43,9 @@ export const people = {
         </a></li>
       </template>
     </ul>
-    <button class="fab" aria-label="Add a person" x-show="!$store.app.readonly" @click="openAdd">+</button>
+    <button class="fab" x-show="!$store.app.readonly" @click="openAdd"><span aria-hidden="true">+</span> Add person</button>
 
-    <div class="sheet-wrap" x-show="sheet" x-cloak @keydown.escape.window="sheet = false">
+    <div class="sheet-wrap" x-show="sheet" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="sheet = false">
       <div class="backdrop" @click="sheet = false"></div>
       <form class="sheet stack" role="dialog" aria-modal="true" aria-label="Add a person" @submit.prevent="save">
         <h2>Add a person</h2>

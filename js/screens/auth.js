@@ -61,7 +61,7 @@ export const signin = {
     <template x-if="!mode">
       <div class="doors">
         <template x-for="(m, key) in modes" :key="key">
-          <button type="button" class="door" @click="setMode(key)"><span x-html="$icon(m.icon)"></span><b x-text="m.door"></b></button>
+          <button type="button" class="door" :class="{ lead: key === 'signin' }" @click="setMode(key)"><span x-html="$icon(m.icon)"></span><b x-text="m.door"></b></button>
         </template>
         <a class="door kid-door" href="#/kids"><span x-html="$icon('star')"></span><b>I'm a kid</b></a>
       </div>

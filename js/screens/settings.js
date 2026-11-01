@@ -154,7 +154,7 @@ export const settings = {
       </div>
     </template>
 
-    <div class="sheet-wrap" x-show="sheet" x-cloak @keydown.escape.window="sheet = false">
+    <div class="sheet-wrap" x-show="sheet" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="sheet = false">
       <div class="backdrop" @click="sheet = false"></div>
       <form class="sheet stack" role="dialog" aria-modal="true" aria-label="Add a child" @submit.prevent="saveChild">
         <h2>Add a child</h2>
@@ -203,7 +203,7 @@ export const settings = {
       this.save();
     },
     async removeGroup(i) {
-      if (!await this.$store.app.confirm(`Delete the ${this.groups[i].name} group? People in it stay, with no group.`)) return;
+      if (!await this.$store.app.confirm(`Delete the ${this.groups[i].name} group? People in it stay, with no group.`, 'Delete group', `Delete ${this.groups[i].name}?`)) return;
       this.groups.splice(i, 1);
       this.save();
     },
@@ -213,7 +213,7 @@ export const settings = {
       const msg = which === 'join'
         ? 'Make a new join code? The old one stops working. Grown-ups who have already joined stay in the family.'
         : "Make a new kids' code? The old one stops working. Children already signed in stay signed in.";
-      if (!await this.$store.app.confirm(msg)) return;
+      if (!await this.$store.app.confirm(msg, 'Make new code', 'Make a new code?')) return;
       this.codes[which + '_code'] = await db.resetCode(which);
       this.$store.app.toast('New code ready. Ho ho ho!');
     },

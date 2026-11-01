@@ -45,7 +45,7 @@ export const person = {
             </li>
           </template>
         </ul>
-        <button class="fab" aria-label="Add a gift" x-show="!ro" @click="openGift()">+</button>
+        <button class="fab" x-show="!ro" @click="openGift()"><span aria-hidden="true">+</span> Add gift</button>
       </div>
 
       <div x-show="tab === 'wishlist'" role="tabpanel" id="panel-wishlist" aria-labelledby="tab-wishlist">
@@ -80,7 +80,7 @@ export const person = {
       </div>
     </div></template>
 
-    <div class="sheet-wrap" x-show="sheet" x-cloak @keydown.escape.window="sheet = false">
+    <div class="sheet-wrap" x-show="sheet" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="sheet = false">
       <div class="backdrop" @click="sheet = false"></div>
       <form class="sheet stack" role="dialog" aria-modal="true" :aria-label="form.id ? 'Edit gift' : 'Add a gift'" @submit.prevent="saveGift">
         <h2 x-text="form.id ? 'Edit gift' : 'Add a gift'"></h2>
@@ -103,7 +103,7 @@ export const person = {
       </form>
     </div>
 
-    <div class="sheet-wrap" x-show="picking" x-cloak @keydown.escape.window="picking = null">
+    <div class="sheet-wrap" x-show="picking" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="picking = null">
       <div class="backdrop" @click="picking = null"></div>
       <div class="sheet stack" role="dialog" aria-modal="true" aria-label="Choose a status">
         <h2 x-text="picking?.name"></h2>
@@ -114,7 +114,7 @@ export const person = {
       </div>
     </div>
 
-    <div class="sheet-wrap" x-show="edit" x-cloak @keydown.escape.window="edit = false">
+    <div class="sheet-wrap" x-show="edit" x-cloak x-transition:enter="sheet-enter" x-transition:enter-start="sheet-fade" x-transition:leave="sheet-leave" x-transition:leave-end="sheet-gone" @keydown.escape.window="edit = false">
       <div class="backdrop" @click="edit = false"></div>
       <form class="sheet stack" role="dialog" aria-modal="true" :aria-label="'Edit ' + (p?.name ?? '')" @submit.prevent="saveEdit">
         <h2 x-text="'Edit ' + (p?.name ?? '')"></h2>
@@ -164,7 +164,7 @@ export const person = {
       this.wishes = this.p.kind === 'child' ? await db.listWishes(id) : [];
     },
     async savePerson(patch) {
-      try { await db.updatePerson(this.p.id, patch); } catch (e) { this.$store.app.toast(e.message); }
+      try { await db.updatePerson(this.p.id, patch); this.$store.app.toast('Saved'); } catch (e) { this.$store.app.toast(e.message); }
       this.load();
     },
     openEdit() {
@@ -196,7 +196,7 @@ export const person = {
       } catch (e) { this.error = e.message; }
     },
     async removeGift() {
-      if (!await this.$store.app.confirm(`Delete "${this.form.name}"?`)) return;
+      if (!await this.$store.app.confirm(`Delete "${this.form.name}"?`, 'Delete gift', 'Delete this gift?')) return;
       await db.deleteGift(this.form.id);
       this.sheet = false;
       this.load();
@@ -213,7 +213,7 @@ export const person = {
     },
     async remove() {
       const what = this.$store.app.kid ? 'and their gifts' : 'their gifts, budgets and wishlist';
-      if (!await this.$store.app.confirm(`Delete ${this.p.name}, ${what}? This can't be undone.`)) return;
+      if (!await this.$store.app.confirm(`Delete ${this.p.name}, ${what}? This can't be undone.`, 'Delete', `Delete ${this.p.name}?`)) return;
       await db.deletePerson(this.p.id);
       this.$store.app.toast(`${this.p.name} deleted`);
       location.hash = '#/people';

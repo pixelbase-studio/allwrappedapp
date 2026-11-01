@@ -60,14 +60,15 @@ Alpine.store('app', {
     if (select.value !== 'new') return (this.seasonId = select.value);
     select.value = this.seasonId;
     const y = this.current.year;
-    if (!await this.confirm(`Start Christmas ${y + 1}? Christmas ${y} will be archived and read-only. Everyone stays on your list, with fresh gift lists.`)) return;
+    if (!await this.confirm(`Start Christmas ${y + 1}? Christmas ${y} will be archived and read-only. Everyone stays on your list, with fresh gift lists.`, `Start ${y + 1}`, `Start Christmas ${y + 1}?`)) return;
     await db.startNewYear();
     await this.load();
     this.seasonId = this.current.id;
     this.toast(`Ho ho ho! Christmas ${y + 1} is ready.`);
   },
 
-  confirm(msg) { return new Promise(res => (this.ask = { msg, res })); },
+  // Say what the button does, not just Yes: confirm(message, buttonLabel, title)
+  confirm(msg, yes = 'Yes', title = 'Are you sure?') { return new Promise(res => (this.ask = { msg, yes, title, res })); },
   answer(yes) { this.ask.res(yes); this.ask = null; },
   toast(msg) {
     this.toastMsg = msg;
