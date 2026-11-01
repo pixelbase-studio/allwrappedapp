@@ -165,8 +165,8 @@ button.avatar { cursor: pointer; }
 .avatar-pick .avatar { width: 100%; height: auto; aspect-ratio: 1; }
 .avatar-pick .avatar.on { outline: 3px solid var(--primary); outline-offset: 2px; }
 /* Bigger faces on rows; a finished person's row takes a soft tint */
-.row > .avatar { width: 64px; height: 64px; }
-.row:has(> .avatar) { min-height: 84px; }
+.row > .avatar { width: 80px; height: 80px; }
+.row:has(> .avatar) { min-height: 100px; }
 .list.tight .row > .avatar { width: 48px; height: 48px; }
 .row.done { background: var(--soft); }
 .row.done .avatar, .row.done .tag { background: var(--surface); }
