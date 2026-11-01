@@ -51,7 +51,10 @@ a { color: var(--primary); }
 .brand img { border-radius: 8px; }
 main { max-width: 600px; margin: 0 auto; }
 main { padding-bottom: 88px; } /* room for the + button below the last row */
-.years select { width: 8rem; min-height: 44px; padding: 0 36px 0 16px; border-radius: 999px; font-weight: 700; background-color: var(--surface); }
+.years { position: relative; }
+.years select { appearance: none; -webkit-appearance: none; width: 5.25rem; min-height: 44px; padding: 0 26px 0 8px; border: 0; border-radius: 999px; font-weight: 600; font-size: var(--fs-small); background: transparent; }
+/* Same caret as the status chips, drawn over the select so it can't be tapped separately. */
+.years::after { content: "▾"; position: absolute; right: 8px; top: 50%; transform: translateY(-62%); font-size: 1.5em; line-height: 0; font-weight: 600; pointer-events: none; }
 .pad { padding: 16px; }
 
 .tabs {
@@ -198,7 +201,7 @@ button.avatar { cursor: pointer; }
   font: inherit; font-size: var(--fs-small); font-weight: 700; text-transform: capitalize; cursor: pointer;
 }
 .chip:disabled { cursor: default; }
-.chip:not(:disabled)::after { content: " ▾"; font-size: .85em; }
+.chip:not(:disabled)::after { content: "▾"; margin-left: .5em; font-size: 1.5em; line-height: 0; position: relative; top: -.08em; }
 .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; }
 .status-opt {
   display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 0 14px;
