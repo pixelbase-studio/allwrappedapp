@@ -9,7 +9,7 @@
   --primary: #1f7a3a; --primary-ink: #fff; --head: #f1f7f0; --head-ink: #1d3324; --accent: #d4202c;
 }
 [data-theme="snowman"] {
-  --bg: #f3f6fa; --surface: #fff; --ink: #263241; --muted: #5f6f83; --line: #dbe3ec; --line-strong: #7b8ca3; --soft: #e8edf4;
+  --bg: #f3f6fa; --surface: #fff; --ink: #263241; --muted: #5a6a7e; --line: #dbe3ec; --line-strong: #7b8ca3; --soft: #e8edf4;
   --primary: #50677f; --primary-ink: #fff; --head: #f3f6fa; --head-ink: #263241; --accent: #a9b6c6;
 }
 :root {

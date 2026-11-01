@@ -86,8 +86,9 @@
     <section class="sg-sec" id="colour"><h2>Colour</h2><p class="sg-note">The tokens every screen draws from.</p>
       <div class="stage"><div class="swatches" id="swatches"></div></div></section>
 
-    <section class="sg-sec" id="type"><h2>Type</h2><p class="sg-note">Fraunces for headings, system font for body. Four sizes only.</p>
+    <section class="sg-sec" id="type"><h2>Type</h2><p class="sg-note">Fraunces for headings, system font for body. Display, headline, title, body and small.</p>
       <div class="stage col sg-type">
+        <h1 style="font-size:var(--fs-display)">Display 2.25rem: Mum</h1>
         <h1>Headline 1.5rem: Ho ho ho!</h1>
         <h2>Title 1.125rem: Who's here?</h2>
         <p>Body 1rem. Your family's Christmas gift lists, all wrapped up.</p>
@@ -99,7 +100,8 @@
     <section class="sg-sec" id="buttons"><h2>Buttons</h2><p class="sg-note">Default, primary, ghost, danger, small, disabled, link, icon, and the add button.</p>
       <div class="stage col">
         <div class="sg-row"><button class="btn">Default</button><button class="btn primary">Primary</button><button class="btn ghost">Ghost</button><button class="btn danger">Danger</button><button class="btn primary" disabled>Disabled</button></div>
-        <div class="sg-row"><button class="btn small">Small</button><button class="btn small primary">Small primary</button><button class="link">Text link</button><button class="icon" aria-label="Icon button">✎</button><button class="icon danger" aria-label="Delete">✕</button><button class="fab" aria-label="Add">+</button></div>
+        <div class="sg-row"><button class="btn small">Small</button><button class="btn small primary">Small primary</button><button class="link">Text link</button><button class="icon" aria-label="Icon button">✎</button><button class="icon danger" aria-label="Delete">✕</button><button class="fab"><span aria-hidden="true">+</span> Add gift</button></div>
+        <p class="note">Press Tab to see the focus ring: 3px ink, offset 2px.</p>
       </div></section>
 
     <section class="sg-sec" id="forms"><h2>Forms</h2><p class="sg-note">Inputs, select, textarea, switch and errors.</p>
@@ -116,9 +118,9 @@
 
     <section class="sg-sec" id="people"><h2>People</h2><p class="sg-note">Person rows with presents, progress and budget states, plus the empty state.</p>
       <div class="stage">
-        <div class="frame"><span class="cap">Rows</span><ul class="list">
+        <div class="frame"><span class="cap">Countdown and rows</span><div class="countdown-strip"><p class="sleeps">54</p><p class="sleeps-label">sleeps until Christmas</p></div><ul class="list">
           <li><a class="row" href="#people"><span class="avatar" data-avatar="santa"></span><span class="grow"><b>Mum</b><span class="meta"><span class="tag">Family</span><span class="presents" data-presents="3,5"></span></span><span class="bar"><i style="width:70%"></i></span></span><span class="amount">£84 of £120</span></a></li>
-          <li><a class="row" href="#people"><span class="avatar" data-avatar="elf"></span><span class="grow"><b>Dad (over budget)</b><span class="meta"><span class="tag">Family</span><span class="presents" data-presents="4,4"></span></span><span class="bar"><i class="over" style="width:100%"></i></span></span><span class="amount">£96 of £80</span></a></li>
+          <li><a class="row done" href="#people"><span class="avatar" data-avatar="elf"></span><span class="grow"><b>Dad (all bought, over budget)</b><span class="meta"><span class="tag">Family</span><span class="presents" data-presents="4,4"></span></span><span class="bar"><i class="over" style="width:100%"></i></span></span><span class="amount">£96 of £80</span></a></li>
           <li><a class="row" href="#people"><span class="avatar" data-avatar="gingerbread"></span><span class="grow"><b>Evie</b><span class="meta"><span class="tag">Kids</span><span class="presents" data-presents="0,0"></span></span></span><span class="amount">£0 spent</span></a></li>
         </ul></div>
         <div class="frame"><span class="cap">Empty state</span><div class="empty card"><div class="avatar xl" data-avatar="elf"></div><p>No people yet. The elves are waiting!</p><button class="btn primary">Add a person</button></div></div>
@@ -127,9 +129,9 @@
     <section class="sg-sec" id="gifts"><h2>Gifts</h2><p class="sg-note">Gift rows, every status chip, and the wrapped ribbon.</p>
       <div class="stage">
         <div class="frame"><span class="cap">Rows</span><ul class="list">
-          <li class="row"><span class="grow"><b>Wool socks</b><span class="meta"><a href="#gifts">Shop link</a><span>Size 8-11</span></span></span><span class="amount">£12.00</span><button class="chip st-idea">idea</button></li>
-          <li class="row"><span class="grow"><b>Gardening gloves</b><span class="meta"><span>Green, medium</span></span></span><span class="amount">£18.00</span><button class="chip st-to-buy">to buy</button></li>
-          <li class="row wrapped"><span class="bow" data-icon="bow"></span><span class="grow"><b>Cookbook</b></span><span class="amount">£25.00</span><button class="chip st-wrapped">wrapped</button></li>
+          <li class="row"><span class="grow"><button type="button" class="row-main"><b>Wool socks</b></button><span class="meta"><a href="#gifts">Shop link</a><span>Size 8-11</span></span></span><span class="amount">£12.00</span><button class="chip st-idea">idea</button></li>
+          <li class="row"><span class="grow"><button type="button" class="row-main"><b>Gardening gloves</b></button><span class="meta"><span>Green, medium</span></span></span><span class="amount">£18.00</span><button class="chip st-to-buy">to buy</button></li>
+          <li class="row wrapped"><span class="bow" data-icon="bow"></span><span class="grow"><button type="button" class="row-main"><b>Cookbook</b></button></span><span class="amount">£25.00</span><button class="chip st-wrapped">wrapped</button></li>
         </ul></div>
         <div class="frame"><span class="cap">Status chips and tabs</span>
           <div class="sg-row" style="margin-bottom:12px"><button class="chip st-idea">idea</button><button class="chip st-to-buy">to buy</button><button class="chip st-bought">bought</button><button class="chip st-received">received</button><button class="chip st-wrapped">wrapped</button></div>
@@ -141,7 +143,7 @@
 
     <section class="sg-sec" id="nav"><h2>Navigation</h2><p class="sg-note">Header with countdown, and the tab bar for grown-ups and for kids.</p>
       <div class="stage col">
-        <header class="top"><span class="brand"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</span><p class="countdown"><b>59</b> <span>sleeps to go</span></p></header>
+        <header class="top"><span class="brand"><img src="icons/icon.svg" alt="" width="30" height="30"> All Wrapped</span></header>
         <nav class="tabs"><div><a href="#nav" aria-current="page"><span data-icon="tree"></span>People</a><a href="#nav"><span data-icon="pound"></span>Budget</a><a href="#nav"><span data-icon="gear"></span>Settings</a></div></nav>
         <nav class="tabs"><div><a href="#nav" aria-current="page"><span data-icon="star"></span>My wishlist</a><a href="#nav"><span data-icon="gift"></span>My gift lists</a></div></nav>
       </div></section>
@@ -149,13 +151,13 @@
     <section class="sg-sec" id="overlays"><h2>Sheets and toast</h2><p class="sg-note">Bottom sheet and confirm shown in place, and the toast.</p>
       <div class="stage">
         <div class="frame"><div class="sheet stack"><h2>Add a gift</h2><label>Gift<input value="Cookbook"></label><label>Price (£)<input type="number" value="25"></label><div class="actions"><button class="btn ghost">Cancel</button><button class="btn primary">Save</button></div></div></div>
-        <div class="frame"><div class="sheet stack"><h2>Are you sure?</h2><p>Delete Gran's gift list for this year?</p><div class="actions"><span class="grow"></span><button class="btn ghost">Cancel</button><button class="btn primary">Yes</button></div></div><p style="margin-top:16px"><span class="toast">Mum added. Ho ho ho!</span></p></div>
+        <div class="frame"><div class="sheet stack"><h2>Delete this gift?</h2><p>Delete "Wool socks"?</p><div class="actions"><span class="grow"></span><button class="btn ghost">Cancel</button><button class="btn primary">Delete gift</button></div></div><p style="margin-top:16px"><span class="toast">Mum added. Ho ho ho!</span></p></div>
       </div></section>
 
     <section class="sg-sec" id="heroes"><h2>Heroes and doors</h2><p class="sg-note">The sign-in doors and the kid countdown moment.</p>
       <div class="stage">
         <div class="frame"><div class="hero"><div class="avatar xl" data-avatar="santa"></div><h1>Ho ho ho!</h1><p>Who's here?</p></div>
-          <div class="doors"><button class="door"><span data-icon="person"></span><b>I've got an account</b></button><button class="door"><span data-icon="home"></span><b>Start a new family</b></button><button class="door"><span data-icon="gift"></span><b>Join my family</b></button><button class="door kid-door"><span data-icon="star"></span><b>I'm a kid</b></button></div></div>
+          <div class="doors"><button class="door lead"><span data-icon="person"></span><b>I've got an account</b></button><button class="door"><span data-icon="home"></span><b>Start a new family</b></button><button class="door"><span data-icon="gift"></span><b>Join my family</b></button><button class="door kid-door"><span data-icon="star"></span><b>I'm a kid</b></button></div></div>
         <div class="frame"><div class="countdown-hero"><div class="avatar xl" data-avatar="reindeer"></div><p class="sleeps">59</p><p class="sleeps-label">sleeps until Christmas</p><p class="hi">Hi Evie! What would you like?</p></div>
           <div class="kid-picker"><button class="kid-pick"><span class="avatar xl" data-avatar="gingerbread"></span><b>Evie</b></button><button class="kid-pick"><span class="avatar xl" data-avatar="penguin"></span><b>Sam</b></button></div></div>
       </div></section>
@@ -169,7 +171,7 @@
     <section class="sg-sec" id="avatars"><h2>Avatars</h2><p class="sg-note">The current SVG set. This is where the new artwork will slot in.</p>
       <div class="stage"><div class="avatar-pick" id="avatar-pick" style="width:100%;max-width:520px"></div></div></section>
 
-    <p class="note">Some values are still hard-coded in <code>styles.css</code> (row radius 14px, input radius 12px, sheet radius 22px), so the radius slider moves cards and doors but not every shape. Those are the next tokens to add.</p>
+    <p class="note">Radii are tokens: <code>--radius-s</code> for inputs and buttons, <code>--radius</code> for cards, rows and doors, <code>--radius-l</code> for sheets. Motion uses <code>--t-fast</code> and <code>--t-base</code>. Pills (999px) are intentional.</p>
   </div>
 
   <script type="module">
@@ -178,9 +180,9 @@
 
     const root = document.documentElement;
     const $ = s => document.querySelector(s);
-    const COLOURS = [['--bg','Page background'],['--surface','Cards'],['--ink','Text'],['--muted','Muted text'],['--line','Borders and tracks'],['--soft','Soft tint'],['--primary','Primary'],['--primary-ink','Text on primary'],['--head','Header'],['--head-ink','Text on header'],['--accent','Accent (gold)'],['--danger','Danger']];
+    const COLOURS = [['--bg','Page background'],['--surface','Cards'],['--ink','Text'],['--muted','Muted text'],['--line','Soft dividers'],['--line-strong','Control borders and tracks'],['--soft','Soft tint'],['--primary','Primary'],['--primary-ink','Text on primary'],['--head','Header'],['--head-ink','Text on header'],['--accent','Accent (gold)'],['--danger','Danger']];
     const STATUS = [['--st-idea','Idea'],['--st-to-buy','To buy'],['--st-bought','Bought'],['--st-received','Received'],['--st-wrapped','Wrapped']];
-    const SIZES = [['--radius','Card radius','px',0,32,1],['--fs-head','Headline size','rem',1.25,2.75,.05],['--fs-title','Title size','rem',1,1.6,.025],['--fs-body','Body size','rem',.875,1.25,.025],['--fs-small','Small size','rem',.75,1.1,.025]];
+    const SIZES = [['--radius','Card and row radius','px',0,32,1],['--radius-s','Input and button radius','px',0,24,1],['--radius-l','Sheet radius','px',0,40,1],['--fs-display','Display size','rem',1.75,3.25,.05],['--t-fast','Fast motion','s',0,.4,.01],['--t-base','Base motion','s',0,.6,.01],['--fs-head','Headline size','rem',1.25,2.75,.05],['--fs-title','Title size','rem',1,1.6,.025],['--fs-body','Body size','rem',.875,1.25,.025],['--fs-small','Small size','rem',.75,1.1,.025]];
     const ALL = [...COLOURS, ...STATUS, ...SIZES].map(c => c[0]);
     const KEY = 'sg-tokens-v1';
     let overrides = {}, base = {};
@@ -221,7 +223,7 @@
 
     function contrast() {
       const c = v => hex(read(v));
-      const pairs = [['Text on page', '--ink', '--bg', 4.5], ['Muted on page', '--muted', '--bg', 4.5], ['Muted on tint', '--muted', '--soft', 4.5], ['On primary', '--primary-ink', '--primary', 4.5], ['Primary on page', '--primary', '--bg', 4.5], ['On header', '--head-ink', '--head', 4.5], ['Borders on card', '--line', '--surface', 3], ['Gold on page', '--accent', '--bg', 3], ...STATUS.map(([v, l]) => [`Chip: ${l}`, null, v, 4.5])];
+      const pairs = [['Text on page', '--ink', '--bg', 4.5], ['Muted on page', '--muted', '--bg', 4.5], ['Muted on tint', '--muted', '--soft', 4.5], ['On primary', '--primary-ink', '--primary', 4.5], ['Primary on page', '--primary', '--bg', 4.5], ['On header', '--head-ink', '--head', 4.5], ['Control borders on card', '--line-strong', '--surface', 3], ['Control borders on page', '--line-strong', '--bg', 3], ['Gold on page', '--accent', '--bg', 3], ...STATUS.map(([v, l]) => [`Chip: ${l}`, null, v, 4.5])];
       $('#ratios').innerHTML = pairs.map(([l, fg, bg, min]) => { const r = ratio(fg ? c(fg) : '#ffffff', c(bg)); return `<div class="ratio"><span>${l}</span><span>${r.toFixed(2)}:1</span><b class="${r >= min ? 'pass' : 'fail'}">${r >= min ? 'Pass' : 'Fail'} ${min}</b></div>`; }).join('');
     }
 
