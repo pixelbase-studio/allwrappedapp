@@ -157,9 +157,11 @@ a.row, .row:has(.row-main:not(:disabled)) { cursor: pointer; }
   border-radius: 50%; border: 0; background: var(--soft); cursor: inherit;
 }
 button.avatar { cursor: pointer; }
-.avatar svg { width: 100%; height: 100%; }
+.avatar:has(> img) { padding: 0; overflow: hidden; }
+/* Cut-paper figures are tall: fill the circle and keep the head and shoulders in view */
+.avatar img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; }
 .avatar.xl { width: 88px; height: 88px; }
-.avatar-pick { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.avatar-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .avatar-pick .avatar { width: 100%; height: auto; aspect-ratio: 1; }
 .avatar-pick .avatar.on { outline: 3px solid var(--primary); outline-offset: 2px; }
 /* Bigger faces on rows; a finished person's row takes a soft tint */
