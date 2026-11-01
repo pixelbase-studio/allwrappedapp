@@ -14,6 +14,10 @@ export const avatarPicker = (target, after = '') => `
 export const people = {
   template: `
   <section class="pad" x-data="people">
+    <div class="countdown-strip" x-show="!$store.app.kid">
+      <p class="sleeps" x-show="$countdown().number" x-text="$countdown().number"></p>
+      <p class="sleeps-label" x-text="$countdown().label"></p>
+    </div>
     <p class="note private" x-show="$store.app.kid">🔒 Only you can see these lists. Grown-ups can't peek!</p>
     <template x-if="loaded && !rows.length">
       <div class="empty">
@@ -24,7 +28,7 @@ export const people = {
     </template>
     <ul class="list">
       <template x-for="p in rows" :key="p.id">
-        <li><a class="row" :href="'#/person/' + p.id">
+        <li><a class="row" :class="{ done: p.count > 0 && p.ready === p.count }" :href="'#/person/' + p.id">
           <span class="avatar" x-html="$avatar(p.avatar)"></span>
           <span class="grow">
             <b x-text="p.name"></b>
